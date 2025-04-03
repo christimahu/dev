@@ -2,507 +2,235 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dev Environment</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism-tomorrow.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/mobile.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/alpine.js/3.10.3/cdn.min.js" defer></script>
-  <script src="js/main.js" defer></script>
 </head>
-<body class="bg-pattern min-h-screen text-gray-100 font-sans leading-normal tracking-normal">
-  <div x-data="devApp" class="flex flex-col min-h-screen">
-    <header class="sticky top-0 z-50 bg-slate-900 border-b border-slate-800">
+<body class="bg-gray-900 text-white">
+  <div x-data="{ tab: 'overview', mobileMenu: false }" class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-gray-800 shadow-md">
       <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-        </div>
-      </div>
-    </footer>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-core.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/autoloader/prism-autoloader.min.js"></script>
-</body>
-</html><div class="flex items-center">
+        <div class="flex items-center">
           <i class="fas fa-cube text-2xl text-blue-400 mr-3"></i>
-          <h1 class="text-2xl font-bold text-gradient">Dev Environment</h1>
+          <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">Dev Environment</h1>
         </div>
         
-        <div class="hidden md:flex space-x-10">
-          <button @click="tab = 'overview'" :class="tab === 'overview' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'" class="pb-1">Overview</button>
-          <button @click="tab = 'features'" :class="tab === 'features' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'" class="pb-1">Features</button>
-          <button @click="tab = 'install'" :class="tab === 'install' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'" class="pb-1">Installation</button>
-          <button @click="tab = 'usage'" :class="tab === 'usage' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'" class="pb-1">Usage</button>
-          <button @click="tab = 'commands'" :class="tab === 'commands' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'" class="pb-1">Commands</button>
-        </div>
+        <!-- Desktop Menu -->
+        <nav class="hidden md:flex space-x-8">
+          <button @click="tab = 'overview'" :class="tab === 'overview' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-300 hover:text-white'" class="pb-1">Overview</button>
+          <button @click="tab = 'install'" :class="tab === 'install' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-300 hover:text-white'" class="pb-1">Installation</button>
+          <button @click="tab = 'usage'" :class="tab === 'usage' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-300 hover:text-white'" class="pb-1">Usage</button>
+          <button @click="tab = 'commands'" :class="tab === 'commands' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-300 hover:text-white'" class="pb-1">Commands</button>
+        </nav>
         
+        <!-- Mobile Menu Button -->
         <button @click="mobileMenu = !mobileMenu" class="md:hidden text-gray-300 hover:text-white">
           <i class="fas fa-bars text-xl"></i>
         </button>
       </div>
       
-      <div x-show="mobileMenu" @click.away="mobileMenu = false" class="md:hidden bg-slate-800 px-4 py-2">
-        <div class="flex flex-col space-y-2">
-          <button @click="changeTab('overview')" :class="tab === 'overview' ? 'text-blue-400' : 'text-gray-400 hover:text-white'" class="text-left py-2">Overview</button>
-          <button @click="changeTab('features')" :class="tab === 'features' ? 'text-blue-400' : 'text-gray-400 hover:text-white'" class="text-left py-2">Features</button>
-          <button @click="changeTab('install')" :class="tab === 'install' ? 'text-blue-400' : 'text-gray-400 hover:text-white'" class="text-left py-2">Installation</button>
-          <button @click="changeTab('usage')" :class="tab === 'usage' ? 'text-blue-400' : 'text-gray-400 hover:text-white'" class="text-left py-2">Usage</button>
-          <button @click="changeTab('commands')" :class="tab === 'commands' ? 'text-blue-400' : 'text-gray-400 hover:text-white'" class="text-left py-2">Commands</button>
-        </div>
+      <!-- Mobile Menu -->
+      <div x-show="mobileMenu" @click.away="mobileMenu = false" class="md:hidden bg-gray-700 px-4 py-2">
+        <nav class="flex flex-col space-y-2">
+          <button @click="tab = 'overview'; mobileMenu = false" class="text-left py-2 text-gray-300 hover:text-white">Overview</button>
+          <button @click="tab = 'install'; mobileMenu = false" class="text-left py-2 text-gray-300 hover:text-white">Installation</button>
+          <button @click="tab = 'usage'; mobileMenu = false" class="text-left py-2 text-gray-300 hover:text-white">Usage</button>
+          <button @click="tab = 'commands'; mobileMenu = false" class="text-left py-2 text-gray-300 hover:text-white">Commands</button>
+        </nav>
       </div>
     </header>
 
+    <!-- Main Content -->
     <main class="flex-grow">
-      <!-- Overview -->
-      <div x-show="tab === 'overview'" class="container mx-auto px-4 py-12">
-        <div class="max-w-4xl mx-auto">
-          <h2 class="text-4xl font-bold mb-6 text-gradient">Containerized Development Environment</h2>
-          <p class="text-xl text-gray-300 mb-8">
+      <!-- Overview Section -->
+      <section x-show="tab === 'overview'" class="container mx-auto px-4 py-10">
+        <div class="max-w-3xl mx-auto">
+          <h2 class="text-3xl font-bold mb-6 text-gradient">Containerized Development Environment</h2>
+          <p class="text-lg text-gray-300 mb-8">
             A seamless, cross-platform development environment that keeps your host system clean while providing 
-            a full suite of development tools. Develop with C++, Rust, Go, Python, and more, with identical 
+            a full suite of development tools. Develop with C++, Rust, Go, Python, and more with identical 
             configuration across all your machines.
           </p>
           
-          <div class="flex flex-col md:flex-row md:space-x-8 space-y-6 md:space-y-0">
-            <div class="bg-slate-800 p-6 rounded-lg shadow-lg flex-1">
-              <div class="text-blue-400 text-2xl mb-4">
-                <i class="fas fa-rocket"></i>
-              </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+              <i class="fas fa-rocket text-blue-400 text-xl mb-3"></i>
               <h3 class="text-xl font-semibold mb-2">Quick Start</h3>
-              <p class="text-gray-300 mb-4">
-                Get up and running in minutes with a complete development environment that follows you everywhere.
-              </p>
-              <a href="#" @click.prevent="tab = 'install'" class="text-blue-400 hover:text-blue-300">
-                See installation →
-              </a>
+              <p class="text-gray-300 mb-3">Get up and running in minutes with a complete development environment.</p>
             </div>
             
-            <div class="bg-slate-800 p-6 rounded-lg shadow-lg flex-1">
-              <div class="text-blue-400 text-2xl mb-4">
-                <i class="fas fa-tools"></i>
-              </div>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+              <i class="fas fa-tools text-blue-400 text-xl mb-3"></i>
               <h3 class="text-xl font-semibold mb-2">Fully Equipped</h3>
-              <p class="text-gray-300 mb-4">
-                Stop wasting time setting up development tools. Everything you need is pre-configured and ready to use.
-              </p>
-              <a href="#" @click.prevent="tab = 'features'" class="text-blue-400 hover:text-blue-300">
-                Explore features →
-              </a>
+              <p class="text-gray-300 mb-3">Pre-configured tools for multiple programming languages.</p>
             </div>
             
-            <div class="bg-slate-800 p-6 rounded-lg shadow-lg flex-1">
-              <div class="text-blue-400 text-2xl mb-4">
-                <i class="fas fa-code"></i>
-              </div>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+              <i class="fas fa-code-branch text-blue-400 text-xl mb-3"></i>
               <h3 class="text-xl font-semibold mb-2">Version Controlled</h3>
-              <p class="text-gray-300 mb-4">
-                Keep your configurations in source control. Never lose your perfectly tuned environment again.
-              </p>
-              <a href="https://github.com/christimahu/dev" target="_blank" class="text-blue-400 hover:text-blue-300">
-                View on GitHub →
-              </a>
+              <p class="text-gray-300 mb-3">Keep your configurations in source control. Never lose your setup again.</p>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Features -->
-      <div x-show="tab === 'features'" class="container mx-auto px-4 py-12">
-        <div class="max-w-4xl mx-auto">
-          <h2 class="text-4xl font-bold mb-10 text-gradient">Features</h2>
+      <!-- Installation Section -->
+      <section x-show="tab === 'install'" class="container mx-auto px-4 py-10">
+        <div class="max-w-3xl mx-auto">
+          <h2 class="text-3xl font-bold mb-6 text-gradient">Installation</h2>
           
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
-              <div class="flex items-center mb-4">
-                <div class="w-10 h-10 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mr-4">
-                  <i class="fas fa-docker text-blue-400"></i>
-                </div>
-                <h3 class="text-xl font-semibold">Containerized Development</h3>
-              </div>
-              <p class="text-gray-300">
-                Keep your host system clean while having all development tools available. Each project gets its own isolated container.
-              </p>
-            </div>
-            
-            <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
-              <div class="flex items-center mb-4">
-                <div class="w-10 h-10 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mr-4">
-                  <i class="fas fa-sync-alt text-blue-400"></i>
-                </div>
-                <h3 class="text-xl font-semibold">Cross-Platform</h3>
-              </div>
-              <p class="text-gray-300">
-                Works on macOS, Linux, and Windows (with WSL). Same experience everywhere with identical tools and configurations.
-              </p>
-            </div>
-            
-            <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
-              <div class="flex items-center mb-4">
-                <div class="w-10 h-10 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mr-4">
-                  <i class="fas fa-terminal text-blue-400"></i>
-                </div>
-                <h3 class="text-xl font-semibold">Pre-installed Tools</h3>
-              </div>
-              <p class="text-gray-300">
-                C++, Rust, Go, Python, Node.js and more, pre-installed and configured. Language servers, linters, and formatters included.
-              </p>
-            </div>
-            
-            <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
-              <div class="flex items-center mb-4">
-                <div class="w-10 h-10 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mr-4">
-                  <i class="fas fa-cloud text-blue-400"></i>
-                </div>
-                <h3 class="text-xl font-semibold">Cloud Development</h3>
-              </div>
-              <p class="text-gray-300">
-                Google Cloud SDK with all major components pre-installed, including Cloud Storage, App Engine, Datastore, Pub/Sub emulators, and kubectl.
-              </p>
-            </div>
-            
-            <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
-              <div class="flex items-center mb-4">
-                <div class="w-10 h-10 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mr-4">
-                  <i class="fas fa-cogs text-blue-400"></i>
-                </div>
-                <h3 class="text-xl font-semibold">NeoVim Configuration</h3>
-              </div>
-              <p class="text-gray-300">
-                Modern NeoVim setup with LSP, Treesitter, completion, and more. Ready for serious development right out of the box.
-              </p>
-            </div>
-            
-            <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
-              <div class="flex items-center mb-4">
-                <div class="w-10 h-10 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mr-4">
-                  <i class="fas fa-code-branch text-blue-400"></i>
-                </div>
-                <h3 class="text-xl font-semibold">Version Controlled Config</h3>
-              </div>
-              <p class="text-gray-300">
-                All configurations stored in Git. Sync between machines, track changes, and never lose your perfect setup again.
-              </p>
-            </div>
-            
-            <div class="bg-slate-800 p-6 rounded-lg shadow-lg">
-              <div class="flex items-center mb-4">
-                <div class="w-10 h-10 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mr-4">
-                  <i class="fas fa-rocket text-blue-400"></i>
-                </div>
-                <h3 class="text-xl font-semibold">Helper Functions</h3>
-              </div>
-              <p class="text-gray-300">
-                Productivity utilities for various languages and tasks. Create new projects, serve files, manage git branches, and more.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Installation -->
-      <div x-show="tab === 'install'" class="container mx-auto px-4 py-12">
-        <div class="max-w-4xl mx-auto">
-          <h2 class="text-4xl font-bold mb-10 text-gradient">Installation</h2>
-          
-          <div class="bg-slate-800 p-8 rounded-lg shadow-lg mb-12">
-            <h3 class="text-2xl font-semibold mb-6">Prerequisites</h3>
-            <ul class="list-disc list-inside text-gray-300 space-y-2 mb-8">
-              <li><span class="text-blue-400">Docker</span> - For containerized environment</li>
-              <li><span class="text-blue-400">Python 3</span> - For setup and management scripts</li>
-              <li><span class="text-blue-400">Git</span> - For version control</li>
+          <div class="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
+            <h3 class="text-xl font-semibold mb-4">Prerequisites</h3>
+            <ul class="list-disc list-inside text-gray-300 mb-6 space-y-1">
+              <li>Docker - For containerized environment</li>
+              <li>Python 3 - For setup and management scripts</li>
+              <li>Git - For version control</li>
             </ul>
             
-            <h3 class="text-2xl font-semibold mb-6">Installation Steps</h3>
-            <div class="bg-slate-900 p-4 rounded-md mb-6 overflow-x-auto">
-              <pre class="language-bash"><code>
-# Clone the repository
+            <h3 class="text-xl font-semibold mb-4">Installation Steps</h3>
+            <div class="bg-gray-900 p-4 rounded-md mb-4 font-mono text-sm">
+              <pre># Step 1: Clone the repository
 git clone https://github.com/christimahu/dev.git ~/dev
 
-# Run the setup script
+# Step 2: Run the setup script (host configuration)
 cd ~/dev/scripts
 python3 setup.py
-              </code></pre>
-            </div>
-            
-            <p class="text-gray-300 mb-4">
-              The setup script will:
-            </p>
-            <ul class="list-disc list-inside text-gray-300 space-y-2">
-              <li>Configure symlinks for NeoVim and shell configuration</li>
-              <li>Build the Docker container image</li>
-              <li>Compile included tools</li>
-              <li>Set up shell integration for the <code class="bg-slate-700 px-2 py-1 rounded">dev</code> command</li>
-            </ul>
-          </div>
-          
-          <div class="bg-slate-800 p-8 rounded-lg shadow-lg">
-            <h3 class="text-2xl font-semibold mb-6">Post-Installation</h3>
-            <p class="text-gray-300 mb-4">
-              After installation, restart your terminal or source your shell configuration:
-            </p>
-            <div class="bg-slate-900 p-4 rounded-md mb-6 overflow-x-auto">
-              <pre class="language-bash"><code>
-# For Bash
-source ~/.bashrc
 
-# For Zsh
-source ~/.zshrc
-              </code></pre>
+# Step 3: Source your shell configuration
+source ~/.bashrc  # or source ~/.zshrc for macOS/Zsh users
+
+# Step 4: Build the Docker container
+dev build</pre>
             </div>
             
-            <p class="text-gray-300 mb-4">
-              You can now use the <code class="bg-slate-700 px-2 py-1 rounded">dev</code> command from any directory:
+            <p class="text-gray-300 mb-2">
+              The installation has two main phases:
             </p>
-            <div class="bg-slate-900 p-4 rounded-md overflow-x-auto">
-              <pre class="language-bash"><code>
-cd ~/your-project
-dev
-              </code></pre>
-            </div>
+            <ul class="list-disc list-inside text-gray-300 space-y-1">
+              <li><strong>Host Setup (setup.py)</strong>: Configures symlinks and sets up the <code class="bg-gray-700 px-1 rounded">dev</code> command</li>
+              <li><strong>Container Build (dev build)</strong>: Builds the Docker container with development tools</li>
+            </ul>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Usage -->
-      <div x-show="tab === 'usage'" class="container mx-auto px-4 py-12">
-        <div class="max-w-4xl mx-auto">
-          <h2 class="text-4xl font-bold mb-10 text-gradient">Usage</h2>
+      <!-- Usage Section -->
+      <section x-show="tab === 'usage'" class="container mx-auto px-4 py-10">
+        <div class="max-w-3xl mx-auto">
+          <h2 class="text-3xl font-bold mb-6 text-gradient">Usage</h2>
           
-          <div class="bg-slate-800 p-8 rounded-lg shadow-lg mb-12">
-            <h3 class="text-2xl font-semibold mb-6">Basic Usage</h3>
-            <p class="text-gray-300 mb-6">
-              The <code class="bg-slate-700 px-2 py-1 rounded">dev</code> command is the main entry point to your development environment:
-            </p>
-            
-            <div class="bg-slate-900 p-4 rounded-md mb-8 overflow-x-auto">
-              <pre class="language-bash"><code>
-# Enter the development environment from any directory
+          <div class="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
+            <h3 class="text-xl font-semibold mb-4">Basic Usage</h3>
+            <div class="bg-gray-900 p-4 rounded-md mb-4 font-mono text-sm">
+              <pre># Enter the development environment from any directory
 cd ~/your-project
 dev
 
-# You'll now be in a bash shell inside the container
-# with your current directory mounted
-              </code></pre>
+# You'll now be in a shell inside the container
+# with your project directory mounted</pre>
             </div>
             
-            <h4 class="text-xl font-semibold mb-4">Environment Features</h4>
-            <ul class="list-disc list-inside text-gray-300 space-y-2">
-              <li>Your home directory structure is preserved inside the container</li>
-              <li>NeoVim is pre-configured with the same settings as your host</li>
-              <li>Development tools for C++, Rust, Go, Python are ready to use</li>
-              <li>Helper functions are available for various tasks</li>
-              <li>Ports are forwarded for web development</li>
-            </ul>
+            <h4 class="text-lg font-semibold mb-3">Common Commands</h4>
+            <table class="w-full mb-4">
+              <tr class="border-b border-gray-700">
+                <td class="py-2 px-3 font-mono bg-gray-700 rounded">dev</td>
+                <td class="py-2 px-3">Enter a shell in the container</td>
+              </tr>
+              <tr class="border-b border-gray-700">
+                <td class="py-2 px-3 font-mono bg-gray-700 rounded">dev build</td>
+                <td class="py-2 px-3">Build the container image</td>
+              </tr>
+              <tr class="border-b border-gray-700">
+                <td class="py-2 px-3 font-mono bg-gray-700 rounded">dev status</td>
+                <td class="py-2 px-3">Show container status</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 font-mono bg-gray-700 rounded">dev exec [cmd]</td>
+                <td class="py-2 px-3">Execute a command in the container</td>
+              </tr>
+            </table>
           </div>
           
-          <div class="bg-slate-800 p-8 rounded-lg shadow-lg mb-12">
-            <h3 class="text-2xl font-semibold mb-6">Workflow Examples</h3>
-            
-            <h4 class="text-xl font-semibold mb-4">C++ Development</h4>
-            <div class="bg-slate-900 p-4 rounded-md mb-6 overflow-x-auto">
-              <pre class="language-bash"><code>
-# Use CMake to build a C++ project
-cd ~/projects/cpp-project
-dev
-
-mkdir -p build && cd build
-cmake ..
-cmake --build .
-              </code></pre>
-            </div>
-            
-            <h4 class="text-xl font-semibold mb-4">Rust Development</h4>
-            <div class="bg-slate-900 p-4 rounded-md mb-6 overflow-x-auto">
-              <pre class="language-bash"><code>
-# Build and run a Rust project
-cd ~/projects/rust-project
-dev
-
-cargo build
-cargo run
-              </code></pre>
-            </div>
-            
-            <h4 class="text-xl font-semibold mb-4">Serving Files</h4>
-            <div class="bg-slate-900 p-4 rounded-md overflow-x-auto">
-              <pre class="language-bash"><code>
-# Serve files from the current directory
-cd ~/website
-dev
-srv
-
-# Serve from a specific directory on a specific port
-srv 8080 ./public
-              </code></pre>
-            </div>
-          </div>
-          
-          <div class="bg-slate-800 p-8 rounded-lg shadow-lg">
-            <h3 class="text-2xl font-semibold mb-6">Customization</h3>
-            <p class="text-gray-300 mb-4">
+          <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h3 class="text-xl font-semibold mb-4">Customization</h3>
+            <p class="text-gray-300 mb-3">
               The environment is designed to be easily customizable:
             </p>
-            
-            <ul class="list-disc list-inside text-gray-300 space-y-4">
-              <li>
-                <strong class="text-white">NeoVim Configuration:</strong> Edit <code class="bg-slate-700 px-2 py-1 rounded">~/dev/config/init.lua</code>
-                to customize your editor setup.
-              </li>
-              <li>
-                <strong class="text-white">Shell Functions:</strong> Add your own functions to 
-                <code class="bg-slate-700 px-2 py-1 rounded">~/dev/config/shell_functions</code>.
-              </li>
-              <li>
-                <strong class="text-white">Docker Image:</strong> Modify <code class="bg-slate-700 px-2 py-1 rounded">~/dev/Dockerfile</code> 
-                to add or remove tools, then rebuild with <code class="bg-slate-700 px-2 py-1 rounded">dev build</code>.
-              </li>
+            <ul class="list-disc list-inside text-gray-300 space-y-2">
+              <li><strong>NeoVim Config:</strong> Edit <code class="bg-gray-700 px-1 rounded">~/dev/config/init.lua</code></li>
+              <li><strong>Shell Functions:</strong> Add to <code class="bg-gray-700 px-1 rounded">~/dev/config/shell_functions</code></li>
+              <li><strong>Docker Image:</strong> Modify <code class="bg-gray-700 px-1 rounded">~/dev/Dockerfile</code></li>
             </ul>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Commands -->
-      <div x-show="tab === 'commands'" class="container mx-auto px-4 py-12">
-        <div class="max-w-4xl mx-auto">
-          <h2 class="text-4xl font-bold mb-10 text-gradient">Commands Reference</h2>
+      <!-- Commands Section -->
+      <section x-show="tab === 'commands'" class="container mx-auto px-4 py-10">
+        <div class="max-w-3xl mx-auto">
+          <h2 class="text-3xl font-bold mb-6 text-gradient">Commands Reference</h2>
           
-          <div class="bg-slate-800 p-8 rounded-lg shadow-lg mb-12">
-            <h3 class="text-2xl font-semibold mb-6">Dev Command</h3>
-            <p class="text-gray-300 mb-6">
-              The <code class="bg-slate-700 px-2 py-1 rounded">dev</code> command manages your development environment:
-            </p>
-            
-            <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse">
-                <thead>
-                  <tr class="border-b border-slate-600">
-                    <th class="py-3 px-4 text-blue-400">Command</th>
-                    <th class="py-3 px-4 text-blue-400">Description</th>
-                  </tr>
-                </thead>
-                <tbody class="text-gray-300">
-                  <tr class="border-b border-slate-700">
-                    <td class="py-3 px-4 font-mono bg-slate-700">dev</td>
-                    <td class="py-3 px-4">Enter a shell in the development container</td>
-                  </tr>
-                  <tr class="border-b border-slate-700">
-                    <td class="py-3 px-4 font-mono bg-slate-700">dev build</td>
-                    <td class="py-3 px-4">Build the development container image</td>
-                  </tr>
-                  <tr class="border-b border-slate-700">
-                    <td class="py-3 px-4 font-mono bg-slate-700">dev build --stage=full</td>
-                    <td class="py-3 px-4">Rebuild the entire container from scratch</td>
-                  </tr>
-                  <tr class="border-b border-slate-700">
-                    <td class="py-3 px-4 font-mono bg-slate-700">dev build --stage=user</td>
-                    <td class="py-3 px-4">Rebuild from the user setup stage</td>
-                  </tr>
-                  <tr class="border-b border-slate-700">
-                    <td class="py-3 px-4 font-mono bg-slate-700">dev build --stage=final</td>
-                    <td class="py-3 px-4">Rebuild only the final stage</td>
-                  </tr>
-                  <tr class="border-b border-slate-700">
-                    <td class="py-3 px-4 font-mono bg-slate-700">dev status</td>
-                    <td class="py-3 px-4">Show status of development containers</td>
-                  </tr>
-                  <tr class="border-b border-slate-700">
-                    <td class="py-3 px-4 font-mono bg-slate-700">dev exec [command]</td>
-                    <td class="py-3 px-4">Execute a command in the development container</td>
-                  </tr>
-                  <tr class="border-b border-slate-700">
-                    <td class="py-3 px-4 font-mono bg-slate-700">dev stop</td>
-                    <td class="py-3 px-4">Stop the running container</td>
-                  </tr>
-                  <tr class="border-b border-slate-700">
-                    <td class="py-3 px-4 font-mono bg-slate-700">dev delete</td>
-                    <td class="py-3 px-4">Delete the container</td>
-                  </tr>
-                  <tr class="border-b border-slate-700">
-                    <td class="py-3 px-4 font-mono bg-slate-700">dev logs</td>
-                    <td class="py-3 px-4">View container logs</td>
-                  </tr>
-                  <tr class="border-b border-slate-700">
-                    <td class="py-3 px-4 font-mono bg-slate-700">dev logs -f</td>
-                    <td class="py-3 px-4">Follow log output</td>
-                  </tr>
-                  <tr>
-                    <td class="py-3 px-4 font-mono bg-slate-700">dev prune</td>
-                    <td class="py-3 px-4">Clean up unused Docker resources</td>
-                  </tr>
-                  <tr>
-                    <td class="py-3 px-4 font-mono bg-slate-700">dev prune --all</td>
-                    <td class="py-3 px-4">Remove all unused containers, networks, and images</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          
-          <div class="bg-slate-800 p-8 rounded-lg shadow-lg">
-            <h3 class="text-2xl font-semibold mb-6">Helper Functions</h3>
-            <p class="text-gray-300 mb-6">
-              The environment includes numerous helper functions to boost your productivity:
-            </p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="bg-slate-700 p-4 rounded-md">
-                <h4 class="text-xl font-semibold mb-2 text-blue-400">File Utilities</h4>
-                <ul class="list-disc list-inside text-gray-300 space-y-2">
-                  <li><code class="bg-slate-800 px-2 py-1 rounded">srv [port] [dir]</code> - Serve files via HTTP</li>
-                  <li><code class="bg-slate-800 px-2 py-1 rounded">tree [dir]</code> - Enhanced tree command</li>
-                  <li><code class="bg-slate-800 px-2 py-1 rounded">tarfolder [dir]</code> - Create a tar archive</li>
-                  <li><code class="bg-slate-800 px-2 py-1 rounded">untarfolder [file]</code> - Extract a tar file</li>
-                </ul>
-              </div>
-              
-              <div class="bg-slate-700 p-4 rounded-md">
-                <h4 class="text-xl font-semibold mb-2 text-blue-400">Git Utilities</h4>
-                <ul class="list-disc list-inside text-gray-300 space-y-2">
-                  <li><code class="bg-slate-800 px-2 py-1 rounded">ghprune</code> - Prune git branches</li>
-                  <li><code class="bg-slate-800 px-2 py-1 rounded">ghdf</code> - Git diff tool</li>
-                </ul>
-              </div>
-              
-              <div class="bg-slate-700 p-4 rounded-md">
-                <h4 class="text-xl font-semibold mb-2 text-blue-400">GCP Utilities</h4>
-                <ul class="list-disc list-inside text-gray-300 space-y-2">
-                  <li><code class="bg-slate-800 px-2 py-1 rounded">gcpinfo</code> - Show GCP configuration</li>
-                  <li><code class="bg-slate-800 px-2 py-1 rounded">gcpproject [id]</code> - Switch GCP project</li>
-                  <li><code class="bg-slate-800 px-2 py-1 rounded">gcpbuckets</code> - List GCS buckets</li>
-                </ul>
-              </div>
-              
-              <div class="bg-slate-700 p-4 rounded-md">
-                <h4 class="text-xl font-semibold mb-2 text-blue-400">Terraform Shortcuts</h4>
-                <ul class="list-disc list-inside text-gray-300 space-y-2">
-                  <li><code class="bg-slate-800 px-2 py-1 rounded">tfinit</code> - Initialize Terraform</li>
-                  <li><code class="bg-slate-800 px-2 py-1 rounded">tfplan</code> - Plan Terraform changes</li>
-                  <li><code class="bg-slate-800 px-2 py-1 rounded">tfapply</code> - Apply Terraform changes</li>
-                </ul>
-              </div>
-            </div>
+          <div class="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
+            <h3 class="text-xl font-semibold mb-4">Dev Command Options</h3>
+            <table class="w-full mb-4">
+              <tr class="border-b border-gray-700">
+                <td class="py-2 px-3 font-mono bg-gray-700 rounded">dev</td>
+                <td class="py-2 px-3">Enter the development container shell</td>
+              </tr>
+              <tr class="border-b border-gray-700">
+                <td class="py-2 px-3 font-mono bg-gray-700 rounded">dev build</td>
+                <td class="py-2 px-3">Build the development container image</td>
+              </tr>
+              <tr class="border-b border-gray-700">
+                <td class="py-2 px-3 font-mono bg-gray-700 rounded">dev build --stage=full</td>
+                <td class="py-2 px-3">Rebuild the entire container from scratch</td>
+              </tr>
+              <tr class="border-b border-gray-700">
+                <td class="py-2 px-3 font-mono bg-gray-700 rounded">dev status</td>
+                <td class="py-2 px-3">Show status of development containers</td>
+              </tr>
+              <tr class="border-b border-gray-700">
+                <td class="py-2 px-3 font-mono bg-gray-700 rounded">dev exec [command]</td>
+                <td class="py-2 px-3">Execute a command in the container</td>
+              </tr>
+              <tr class="border-b border-gray-700">
+                <td class="py-2 px-3 font-mono bg-gray-700 rounded">dev stop</td>
+                <td class="py-2 px-3">Stop the running container</td>
+              </tr>
+              <tr class="border-b border-gray-700">
+                <td class="py-2 px-3 font-mono bg-gray-700 rounded">dev delete</td>
+                <td class="py-2 px-3">Delete the container</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 font-mono bg-gray-700 rounded">dev prune</td>
+                <td class="py-2 px-3">Clean up unused Docker resources</td>
+              </tr>
+            </table>
           </div>
         </div>
-      </div>
+      </section>
     </main>
 
-    <footer class="bg-slate-900 border-t border-slate-800 py-8">
-      <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row justify-between items-center">
-          <div class="flex items-center mb-4 md:mb-0">
-            <i class="fas fa-cube text-xl text-blue-400 mr-3"></i>
-            <span class="text-xl font-bold text-gradient">Dev Environment</span>
-          </div>
-          
-          <div class="text-gray-400 text-sm">
-            Created by <a href="https://github.com/christimahu" class="text-blue-400 hover:text-blue-300">Christi Mahu</a> • MPL 2.0 License
-          </div>
-          
-          <div>
-            <a href="https://github.com/christimahu/dev" class="text-gray-400 hover:text-white text-2xl">
-              <i class="fab fa-github"></i>
-            </a>
-          </div>
+    <!-- Footer -->
+    <footer class="bg-gray-800 py-6">
+      <div class="container mx-auto px-4 text-center">
+        <div class="text-gray-400 text-sm">
+          Created by <a href="https://github.com/christimahu" class="text-blue-400 hover:text-blue-300">Christi Mahu</a> • MPL 2.0 License
+        </div>
+        <div class="mt-2">
+          <a href="https://github.com/christimahu/dev" class="text-gray-400 hover:text-white text-xl">
+            <i class="fab fa-github"></i>
+          </a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

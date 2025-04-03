@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 """
 Development Environment Manager
+==============================
 
 This script manages a Docker-based development environment, creating a consistent
 development experience across different machines.
+
+Common commands:
+- dev               : Enter a shell in the development container
+- dev build         : Build the development container image
+- dev status        : Show status of the development containers
+- dev exec [command]: Execute a command in the development container
+- dev stop          : Stop the development container
+- dev delete        : Delete the development container
 """
 
 import argparse
 import os
-import platform
 import subprocess
 import sys
 from pathlib import Path
+import hashlib
 
 # Configuration
 IMAGE_NAME = "christi-dev"
@@ -19,7 +28,7 @@ IMAGE_TAG = "latest"
 HOME_DIR = str(Path.home())
 DEV_DIR = os.path.join(HOME_DIR, "dev")
 
-# Check if the script is running from the dev directory
+# Check if running from dev directory
 if os.path.basename(os.getcwd()) == "dev" and os.path.exists(os.path.join(os.getcwd(), "scripts", "dev.py")):
     DEV_DIR = os.getcwd()
 
@@ -38,9 +47,7 @@ def run_command(cmd, capture_output=True, text=True, check=True):
 def get_container_name():
     """Generate a container name based on the current directory."""
     current_dir = os.getcwd()
-    # If not in dev directory, use a hash of the current directory
     if current_dir != DEV_DIR:
-        import hashlib
         dir_hash = hashlib.md5(current_dir.encode()).hexdigest()[:8]
         return f"dev-{dir_hash}"
     return "dev-main"
@@ -54,6 +61,35 @@ def container_running(container_name):
     """Check if a container with the given name is running."""
     result = run_command(["docker", "ps", "-q", "-f", f"name={container_name}"], check=False)
     return bool(result)
+
+def parse_custom_env_file(env_file):
+    """Parse a custom environment file for port mappings and environment variables."""
+    result = {'ports': [], 'env_vars': {}}
+    
+    if not os.path.exists(env_file):
+        print(f"Notice: {env_file} not found.")
+        print(f"Create it based on custom_example.env for custom port mappings.")
+        return result
+    
+    with open(env_file, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+                
+            if '=' in line:
+                key, value = [part.strip() for part in line.split('=', 1)]
+                
+                if key.startswith('PORT_') and ':' in value:
+                    # Special handling for port mappings to avoid any spacing issues
+                    host_port, container_port = [p.strip() for p in value.split(':', 1)]
+                    # Format directly without spaces
+                    port_arg = f"-p{host_port}:{container_port}"
+                    result['ports'].append(port_arg)
+                else:
+                    result['env_vars'][key] = value
+    
+    return result
 
 def shell_command(args):
     """Enter a shell in the development container."""
@@ -81,26 +117,27 @@ def shell_command(args):
                 f"-v {HOME_DIR}/.gitconfig:/home/me/.gitconfig:ro"
             ]
         
-        # Create symlinks, copy configs, etc. via a one-time startup script
-        init_script = f"""
-mkdir -p /home/me/.config/nvim
-ln -sf /home/me/dev/config/init.lua /home/me/.config/nvim/init.lua
-echo "source /home/me/dev/config/shell_functions" >> /home/me/.bashrc
-"""
-        
-        # Ports to expose
-        ports = ["-p 8000:8000", "-p 8097:8097", "-p 8098:8098", "-p 8099:8099", "-p 5173:5173"]
+        # Initialization script
+        init_script = """
+        mkdir -p /home/me/.config/nvim
+        ln -sf /home/me/dev/config/init.lua /home/me/.config/nvim/init.lua
+        echo "source /home/me/dev/config/shell_functions" >> /home/me/.bashrc
+        """
+
+        # Read custom environment
+        env_file = os.path.join(DEV_DIR, "custom.env")
+        custom_env = parse_custom_env_file(env_file)
         
         # Create and start the container
         cmd = ["docker", "run", "-d", "-it", "--name", container_name]
         cmd.extend(mounts)
-        cmd.extend(ports)
+        if custom_env['ports']:
+            cmd.extend(custom_env['ports'])
         cmd.extend(["--network", "bridge", "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"])
         
-        # Add environment variables if available
-        env_file = os.path.join(DEV_DIR, "custom.env")
-        if os.path.exists(env_file):
-            cmd.extend(["--env-file", env_file])
+        # Add environment variables
+        for key, value in custom_env['env_vars'].items():
+            cmd.extend(["-e", f"{key}={value}"])
         
         # Set working directory and image
         cmd.extend(["--workdir", work_dir, f"{IMAGE_NAME}:{IMAGE_TAG}"])
@@ -124,27 +161,30 @@ def build_command(args):
     """Build the development container image."""
     build_args = ["docker", "build"]
     
-    # If no-cache flag is provided, add it
     if args.no_cache:
         build_args.append("--no-cache")
     
-    # Handle different build stages
     if args.stage == "full":
         build_args.extend(["-t", f"{IMAGE_NAME}:{IMAGE_TAG}", "."])
     elif args.stage == "user":
         build_args.extend(["--target", "user-setup", "-t", f"{IMAGE_NAME}:user-stage", "."])
         build_args = ["docker", "build", "--target", "dev-environment", 
-                      "--build-arg", "BASE_IMAGE=user-stage",
-                      "-t", f"{IMAGE_NAME}:{IMAGE_TAG}", "."]
+                     "--build-arg", "BASE_IMAGE=user-stage",
+                     "-t", f"{IMAGE_NAME}:{IMAGE_TAG}", "."]
     elif args.stage == "final":
         build_args.extend(["--target", "dev-environment", 
                           "-t", f"{IMAGE_NAME}:{IMAGE_TAG}", "."])
     
     print(f"Building container image: {' '.join(build_args)}")
-    os.chdir(DEV_DIR)  # Ensure we're in the right directory for build context
+    os.chdir(DEV_DIR)  # Ensure correct build context
     
-    # Execute build command with output streaming to console
-    subprocess.run(build_args)
+    result = subprocess.run(build_args)
+    
+    if result.returncode == 0:
+        print("\n✅ Build completed successfully!")
+        print("You can now run 'dev' to enter the development environment.")
+    else:
+        print("\n❌ Build failed. Please check the error messages above.")
 
 def stop_command(args):
     """Stop the development container."""
@@ -188,8 +228,6 @@ def status_command(args):
     # Check container
     if container_exists(container_name):
         status = "Running" if container_running(container_name) else "Stopped"
-        
-        # Get container details
         details = run_command([
             "docker", "inspect", 
             "-f", "{{.Config.Image}} | {{.State.StartedAt}} | {{.NetworkSettings.IPAddress}}", 
@@ -232,20 +270,16 @@ def exec_command(args):
             print("Please create and start the container first.")
             return
     
-    # Execute the command
-    cmd = ["docker", "exec", container_name]
-    
-    # Add -it flags if interactive
+    cmd = ["docker", "exec"]
     if args.interactive:
-        cmd.insert(2, "-it")
+        cmd.append("-it")
+    cmd.append(container_name)
     
-    # Add the command to execute
     if isinstance(args.command, list):
         cmd.extend(args.command)
     else:
         cmd.extend(["bash", "-c", args.command])
     
-    # Run with output streaming to console
     subprocess.run(cmd)
 
 def logs_command(args):
@@ -254,18 +288,11 @@ def logs_command(args):
     
     if container_exists(container_name):
         cmd = ["docker", "logs"]
-        
-        # Add follow flag if requested
         if args.follow:
             cmd.append("-f")
-        
-        # Add number of lines if specified
         if args.lines:
             cmd.extend(["--tail", str(args.lines)])
-        
         cmd.append(container_name)
-        
-        # Run with output streaming to console
         subprocess.run(cmd)
     else:
         print(f"Container {container_name} does not exist.")
@@ -275,31 +302,19 @@ def prune_command(args):
     print("Cleaning up unused Docker resources...")
     
     if args.all:
-        # Confirm before pruning everything
         print("WARNING: This will remove all unused containers, networks, images, and volumes.")
         confirm = input("Are you sure you want to continue? [y/N]: ")
         
         if confirm.lower() == 'y':
-            print("Removing unused containers...")
             subprocess.run(["docker", "container", "prune", "-f"])
-            
-            print("Removing unused networks...")
             subprocess.run(["docker", "network", "prune", "-f"])
-            
-            print("Removing unused images...")
             subprocess.run(["docker", "image", "prune", "-a", "-f"])
-            
             if args.volumes:
-                print("Removing unused volumes...")
                 subprocess.run(["docker", "volume", "prune", "-f"])
         else:
             print("Prune operation canceled.")
     else:
-        # Default pruning
-        print("Removing unused containers...")
         subprocess.run(["docker", "container", "prune", "-f"])
-        
-        print("Removing dangling images...")
         subprocess.run(["docker", "image", "prune", "-f"])
 
 def main():
@@ -307,14 +322,14 @@ def main():
     parser = argparse.ArgumentParser(description="Development Environment Manager")
     subparsers = parser.add_subparsers(dest="command", help="Command to execute")
     
-    # Shell command (default)
-    shell_parser = subparsers.add_parser("shell", help="Enter a shell in the development container")
+    # Shell command
+    subparsers.add_parser("shell", help="Enter a shell in the development container")
     
     # Build command
     build_parser = subparsers.add_parser("build", help="Build the development container image")
     build_parser.add_argument("--no-cache", action="store_true", help="Build without using cache")
     build_parser.add_argument("--stage", choices=["full", "user", "final"], default="full", 
-                              help="Build stage (full, user, or final)")
+                            help="Build stage (full, user, or final)")
     
     # Stop command
     stop_parser = subparsers.add_parser("stop", help="Stop the development container")

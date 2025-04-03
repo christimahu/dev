@@ -27,48 +27,29 @@ A containerized development environment for seamless cross-platform software dev
    git clone https://github.com/christimahu/dev.git ~/dev
    ```
 
-2. **Set up shell configuration**
-   
-   For Zsh users (macOS default):
+2. **Run the setup script**
    ```bash
-   # Backup your existing configuration (recommended)
-   cp ~/.zshrc ~/.zshrc.backup
+   cd ~/dev/scripts
+   python3 setup.py
+   ```
+   This will:
+   - Create necessary symlinks for configurations
+   - Build local development tools
+   - Set up the `dev` command alias
+
+3. **Source your shell configuration**
+   ```bash
+   # For Bash users
+   source ~/.bashrc
    
-   # Option 1: Replace your configuration (recommended for new users)
-   cp ~/dev/config/zshrc ~/.zshrc
-   
-   # Option 2: Append to your existing configuration
-   cat ~/dev/config/zshrc >> ~/.zshrc
-   
-   # Apply the changes
+   # For Zsh users (macOS default)
    source ~/.zshrc
    ```
 
-   For Bash users:
+4. **Build the Docker container**
    ```bash
-   # Backup your existing configuration (recommended)
-   cp ~/.bashrc ~/.bashrc.backup
-   
-   # Option 1: Replace your configuration (recommended for new users)
-   cp ~/dev/config/bashrc ~/.bashrc
-   
-   # Option 2: Append to your existing configuration
-   cat ~/dev/config/bashrc >> ~/.bashrc
-   
-   # Apply the changes
-   source ~/.bashrc
-   ```
-
-3. **Make scripts executable**
-   ```bash
-   chmod +x ~/dev/scripts/dev.py
-   chmod +x ~/dev/scripts/setup.py
-   ```
-
-4. **Run the setup script**
-   ```bash
-   cd ~/dev/scripts
-   ./setup.py
+   # Use the dev command to build the container
+   dev build
    ```
 
 5. **Start using the development environment**
@@ -110,6 +91,23 @@ The `dev` command provides a seamless way to work with your development environm
 - `dev delete` - Delete the container
 - `dev logs` - View container logs
 - `dev prune` - Clean up unused Docker resources
+
+## Installation Workflow Details
+
+To understand the installation process better:
+
+1. **Setup script (`setup.py`)**:
+   - Sets up configuration symlinks (Neovim, shell)
+   - Builds local tools like the HTTP server
+   - Creates the `dev` command alias
+   - Does NOT build the Docker container
+
+2. **Build command (`dev build`)**:
+   - Creates the Docker image with all development tools
+   - Installs programming languages and tools
+   - Configures the development environment
+
+This two-step process allows for better control and separation of concerns.
 
 ## Recommended Workflow
 

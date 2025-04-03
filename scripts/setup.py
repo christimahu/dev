@@ -1,12 +1,28 @@
 #!/usr/bin/env python3
 """
-Setup script for the development environment.
+Development Environment Setup Script
+====================================
 
-This script:
-1. Sets up symlinks for configuration files
-2. Builds the Docker image
-3. Compiles tools
-4. Configures shell integration
+This script prepares your host system for using the containerized development environment.
+It does NOT build the Docker container itself - that's handled by the 'dev build' command.
+
+What this script DOES:
+1. Sets up symlinks for configuration files (NeoVim, shell configs)
+2. Configures shell integration by adding the 'dev' command alias
+
+What this script does NOT do:
+1. Build the Docker container (use 'dev build' for that after setup)
+2. Install software packages (Docker, Python, Git are prerequisites)
+3. Build any development tools (all tools run inside the container)
+
+Usage:
+    cd ~/dev/scripts
+    python3 setup.py
+
+After running this script, you'll need to:
+1. Source your shell configuration: source ~/.bashrc or source ~/.zshrc
+2. Build the container: dev build
+3. Start using the environment: dev
 """
 
 import os
@@ -17,13 +33,26 @@ import sys
 from pathlib import Path
 
 # Configuration
-DEV_DIR = str(Path.home() / "dev")
-CONFIG_DIR = os.path.join(DEV_DIR, "config")
-TOOLS_DIR = os.path.join(DEV_DIR, "tools")
-SRV_DIR = os.path.join(TOOLS_DIR, "srv")
+# These paths define where our files are located and where symlinks should point
+DEV_DIR = str(Path.home() / "dev")  # Main development directory
+CONFIG_DIR = os.path.join(DEV_DIR, "config")  # Configuration files
 
 def run_command(cmd, cwd=None, check=True, capture_output=False):
-    """Run a shell command and return its output."""
+    """
+    Run a shell command and return its output.
+    
+    This is a utility function that handles running external commands
+    and provides consistent error handling.
+    
+    Args:
+        cmd: List containing the command and its arguments
+        cwd: Working directory to run the command in
+        check: Whether to exit on command failure
+        capture_output: Whether to capture and return command output
+        
+    Returns:
+        Boolean indicating success or failure
+    """
     try:
         print(f"Running: {' '.join(cmd)}")
         result = subprocess.run(
@@ -50,7 +79,19 @@ def run_command(cmd, cwd=None, check=True, capture_output=False):
         return False
 
 def create_symlink(source, target):
-    """Create a symlink, handling existing files."""
+    """
+    Create a symlink, handling existing files by backing them up.
+    
+    This allows us to link configuration files without destroying
+    existing user configurations.
+    
+    Args:
+        source: Path to the source file
+        target: Path where the symlink should be created
+        
+    Returns:
+        Boolean indicating success or failure
+    """
     source_path = os.path.abspath(source)
     target_path = os.path.abspath(target)
     
@@ -86,7 +127,16 @@ def create_symlink(source, target):
         return False
 
 def setup_config_symlinks():
-    """Set up symlinks for configuration files."""
+    """
+    Set up symlinks for configuration files.
+    
+    This includes:
+    - NeoVim configuration (init.lua)
+    - Shell configuration (.bashrc or .zshrc)
+    
+    These symlinks ensure that your configurations are used both on the host
+    system and inside the container, providing a consistent experience.
+    """
     print("\n=== Setting up configuration symlinks ===")
     
     # Determine home directory
@@ -167,39 +217,16 @@ def setup_config_symlinks():
     
     print("Configuration symlinks setup complete.")
 
-def build_docker_image():
-    """Build the Docker image for the development environment."""
-    print("\n=== Building Docker image ===")
-    
-    # Check if Docker is installed
-    if not shutil.which("docker"):
-        print("Docker is not installed. Please install Docker first.")
-        return False
-    
-    # Build the Docker image - capture_output=False to show output in real-time
-    build_cmd = ["docker", "build", "-t", "christi-dev:latest", "."]
-    return run_command(build_cmd, cwd=DEV_DIR, capture_output=False)
-
-def build_tools():
-    """Build the tools needed for the development environment."""
-    print("\n=== Building tools ===")
-    
-    # Build the srv tool if it exists
-    if os.path.exists(SRV_DIR):
-        print("Building srv tool...")
-        # Check if Cargo is installed
-        if not shutil.which("cargo"):
-            print("Cargo is not installed. Please install Rust first.")
-            return False
-        
-        # Build the srv tool - capture_output=False to show output in real-time
-        return run_command(["cargo", "build", "--release"], cwd=SRV_DIR, capture_output=False)
-    else:
-        print("srv tool directory not found, skipping build.")
-        return True
-
 def setup_shell_integration():
-    """Setup shell integration for easier use of the dev tools."""
+    """
+    Set up shell integration for easier use of the development tools.
+    
+    This adds a 'dev' command alias to your shell configuration, allowing you to:
+    - Enter the development environment: dev
+    - Build the container: dev build
+    - Check status: dev status
+    - And use other dev commands
+    """
     print("\n=== Setting up shell integration ===")
     
     # Create alias for dev.py
@@ -217,6 +244,7 @@ def setup_shell_integration():
                     f.write(f"\n# Added by dev setup script\n")
                     f.write(f'alias dev="python3 {os.path.join(DEV_DIR, "scripts", "dev.py")}"\n')
                 print(f"Added dev alias to {shell_rc}")
+                print(f"You'll need to run 'source {shell_rc}' to use the alias in this session")
     
     # Make dev.py executable
     dev_py_path = os.path.join(DEV_DIR, "scripts", "dev.py")
@@ -227,7 +255,12 @@ def setup_shell_integration():
     print("Shell integration setup complete.")
 
 def detect_shell():
-    """Detect the current shell."""
+    """
+    Detect the current shell being used.
+    
+    Returns:
+        'zsh' for Zsh shell, 'bash' for Bash shell, or 'bash' as a fallback
+    """
     shell = os.environ.get("SHELL", "")
     if "zsh" in shell:
         return "zsh"
@@ -238,7 +271,17 @@ def detect_shell():
         return "bash"
 
 def check_prerequisites():
-    """Check if all prerequisites are installed."""
+    """
+    Check if all prerequisites are installed.
+    
+    Required software:
+    - Docker: For containerized environment
+    - Python 3: For running scripts
+    - Git: For version control
+    
+    Returns:
+        Boolean indicating if all prerequisites are met
+    """
     print("\n=== Checking prerequisites ===")
     
     missing = []
@@ -256,41 +299,57 @@ def check_prerequisites():
         missing.append("Git")
     
     if missing:
-        print(f"The following prerequisites are missing: {', '.join(missing)}")
-        print("Please install them before continuing.")
+        print(f"⚠️ The following prerequisites are missing: {', '.join(missing)}")
+        print("Please install them before continuing. See README.md for instructions.")
         return False
     
-    print("All prerequisites are installed.")
+    print("✓ All prerequisites are installed.")
     return True
 
 def main():
-    """Main function to run the setup."""
+    """
+    Main function to run the setup.
+    
+    This is the entry point for the setup script, which:
+    1. Checks prerequisites
+    2. Sets up configuration symlinks
+    3. Configures shell integration
+    
+    Note: It does NOT build the Docker container - that's done separately with 'dev build'
+    """
     print("=== Development Environment Setup ===")
+    print("This script prepares your host system for using the development environment.")
+    print("After this completes, you'll need to run 'dev build' to build the Docker container.")
     
     # Check if the script is running from the dev directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
     if not script_dir.endswith(os.path.join("dev", "scripts")):
         print("This script should be run from the dev/scripts directory.")
         print(f"Current directory: {script_dir}")
+        print("Please run: cd ~/dev/scripts && python3 setup.py")
         sys.exit(1)
     
     # Check prerequisites
     if not check_prerequisites():
         sys.exit(1)
     
-    # Perform setup steps
+    # Perform setup steps (excluding Docker build and tool building)
     setup_config_symlinks()
-    if build_docker_image():
-        build_tools()
-        setup_shell_integration()
-        
-        print("\n=== Setup complete! ===")
-        print("You can now use the development environment by running:")
-        print("  dev")
-        print("From any directory on your system.")
+    setup_shell_integration()
+    
+    print("\n=== 🎉 Setup complete! ===")
+    print("\nNext steps:")
+    print("1. Source your shell configuration:")
+    if detect_shell() == "zsh":
+        print("   source ~/.zshrc")
     else:
-        print("\n=== Setup incomplete ===")
-        print("Docker image build failed. Please check the error messages and try again.")
+        print("   source ~/.bashrc")
+    print("\n2. Build the development container:")
+    print("   dev build")
+    print("\n3. Enter the development environment:")
+    print("   cd ~/your-project")
+    print("   dev")
+    print("\nFor more information, see the README.md")
 
 if __name__ == "__main__":
     main()

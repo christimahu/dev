@@ -93,6 +93,7 @@ async fn main() {
     // Start the server with more robust error handling
     info!("Starting server on {}", addr);
     
+    // Fixed version for axum 0.6.18
     match tokio::net::TcpListener::bind(addr).await {
         Ok(listener) => {
             println!("Server started successfully! Press Ctrl+C to stop.");
@@ -107,8 +108,11 @@ async fn main() {
                 }
             });
             
-            // Serve with graceful shutdown
-            match axum::serve(listener, app).await {
+            // Use axum::Server instead of axum::serve which doesn't exist in 0.6.18
+            match axum::Server::bind(&addr)
+                .serve(app.into_make_service())
+                .await 
+            {
                 Ok(_) => {
                     info!("Server shut down gracefully");
                     println!("Server shut down gracefully");
