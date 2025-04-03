@@ -22,14 +22,26 @@ CONFIG_DIR = os.path.join(DEV_DIR, "config")
 TOOLS_DIR = os.path.join(DEV_DIR, "tools")
 SRV_DIR = os.path.join(TOOLS_DIR, "srv")
 
-def run_command(cmd, cwd=None, check=True):
+def run_command(cmd, cwd=None, check=True, capture_output=False):
     """Run a shell command and return its output."""
     try:
         print(f"Running: {' '.join(cmd)}")
-        result = subprocess.run(cmd, cwd=cwd, check=check, text=True, capture_output=True)
-        if result.stdout:
-            print(result.stdout)
-        return result.returncode == 0
+        result = subprocess.run(
+            cmd, 
+            cwd=cwd, 
+            check=check, 
+            text=True, 
+            capture_output=capture_output
+        )
+        
+        if not capture_output:
+            # If not capturing output, let it flow to stdout/stderr in real-time
+            return result.returncode == 0
+        else:
+            # If capturing output, print it after the command completes
+            if result.stdout:
+                print(result.stdout)
+            return result.returncode == 0
     except subprocess.CalledProcessError as e:
         print(f"Error executing command: {' '.join(cmd)}")
         print(f"Error message: {e.stderr if e.stderr else str(e)}")
@@ -164,9 +176,9 @@ def build_docker_image():
         print("Docker is not installed. Please install Docker first.")
         return False
     
-    # Build the Docker image
+    # Build the Docker image - capture_output=False to show output in real-time
     build_cmd = ["docker", "build", "-t", "christi-dev:latest", "."]
-    return run_command(build_cmd, cwd=DEV_DIR)
+    return run_command(build_cmd, cwd=DEV_DIR, capture_output=False)
 
 def build_tools():
     """Build the tools needed for the development environment."""
@@ -180,8 +192,8 @@ def build_tools():
             print("Cargo is not installed. Please install Rust first.")
             return False
         
-        # Build the srv tool
-        return run_command(["cargo", "build", "--release"], cwd=SRV_DIR)
+        # Build the srv tool - capture_output=False to show output in real-time
+        return run_command(["cargo", "build", "--release"], cwd=SRV_DIR, capture_output=False)
     else:
         print("srv tool directory not found, skipping build.")
         return True

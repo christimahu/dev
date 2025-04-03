@@ -18,9 +18,10 @@ RUN apt-get update --fix-missing && \
     zsh apt-transport-https ca-certificates gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# Update Node.js to latest LTS
-RUN npm install -g n && \
-    n lts && \
+# Update Node.js properly to a stable LTS version
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get update && \
+    apt-get install -y nodejs && \
     npm install -g pnpm
 
 # Install Go

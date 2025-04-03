@@ -43,6 +43,10 @@ require('packer').startup(function(use)
     use 'sainnhe/gruvbox-material'
     use 'folke/tokyonight.nvim'
 
+    -- Mason for automatic LSP installation
+    use 'williamboman/mason.nvim'
+    use 'williamboman/mason-lspconfig.nvim'
+
     -- LSP and completion
     use 'neovim/nvim-lspconfig'
     use 'hrsh7th/nvim-cmp'
@@ -77,10 +81,31 @@ require('packer').startup(function(use)
     -- Formatter
     use 'stevearc/conform.nvim'
 
-    -- Treesitter
+    -- Treesitter with improved installation
     use {
-      'nvim-treesitter/nvim-treesitter',
-      run = ':TSUpdate'
+        'nvim-treesitter/nvim-treesitter',
+        run = function()
+            -- Try to handle both macOS and Linux environments
+            local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
+            ts_update()
+        end,
+        config = function()
+            require('nvim-treesitter.configs').setup {
+                ensure_installed = { "lua", "rust", "cpp", "c", "python", "go", "javascript", "typescript", "html", "css", "json", "markdown" },
+                highlight = {
+                    enable = true,
+                    additional_vim_regex_highlighting = false,
+                },
+                indent = {
+                    enable = true
+                },
+                -- Compiler settings that work on both macOS and Linux
+                compiler_options = {
+                    on_the_fly = true,
+                },
+                auto_install = true
+            }
+        end
     }
     
     -- UI enhancements
@@ -102,7 +127,7 @@ require('packer').startup(function(use)
     use 'github/copilot.vim'
     
     -- UI helpers
-    use { 'j-hui/fidget.nvim', tag = 'legacy' }
+    use 'j-hui/fidget.nvim'
     use {
       'folke/trouble.nvim',
       requires = 'nvim-tree/nvim-web-devicons'
@@ -119,6 +144,29 @@ require('packer').startup(function(use)
       }
     }
 end)
+
+-- Set up Mason first to ensure language servers are available
+require("mason").setup({
+    ui = {
+        icons = {
+            package_installed = "✓",
+            package_pending = "➜",
+            package_uninstalled = "✗"
+        }
+    }
+})
+
+require("mason-lspconfig").setup({
+    ensure_installed = { 
+        "lua_ls",     -- Lua
+        "rust_analyzer", -- Rust
+        "gopls",      -- Go
+        "clangd",     -- C/C++
+        "pyright",    -- Python
+        "tsserver",   -- TypeScript/JavaScript (Mason still uses the old name)
+    },
+    automatic_installation = true,
+})
 
 -- Colors
 vim.cmd([[if has("termguicolors") | set termguicolors | endif]])
@@ -149,10 +197,15 @@ require('lualine').setup({
 -- Git signs
 require('gitsigns').setup()
 
--- Indentation guides
-require('indent_blankline').setup({
-    show_current_context = true,
-    show_current_context_start = true,
+-- Indentation guides (updated for indent-blankline v3)
+require('ibl').setup({
+    indent = {
+        char = '│',
+    },
+    scope = {
+        enabled = true,
+        show_start = true,
+    }
 })
 
 -- LSP configuration
@@ -161,35 +214,50 @@ local lspconfig = require('lspconfig')
 -- Shared capabilities for all LSP servers
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
--- LSP servers setup
-lspconfig.pyright.setup({ capabilities = capabilities })
-lspconfig.tsserver.setup({ capabilities = capabilities })
-lspconfig.gopls.setup({ capabilities = capabilities })
-
--- C++ with clangd
-require("clangd_extensions").setup({
-    server = {
-        capabilities = capabilities,
-        cmd = {"clangd", "--background-index"}
-    },
+-- LSP server setups are now handled by mason-lspconfig
+-- Mason handles installation, we just need to set up configuration
+require("mason-lspconfig").setup_handlers({
+    -- Default handler for all servers
+    function(server_name)
+        lspconfig[server_name].setup({
+            capabilities = capabilities,
+        })
+    end,
+    
+    -- Custom handler for specific servers
+    ["rust_analyzer"] = function()
+        require("rust-tools").setup({
+            server = {
+                capabilities = capabilities,
+                settings = {
+                    ["rust-analyzer"] = {
+                        checkOnSave = {
+                            command = "clippy",
+                        },
+                    },
+                },
+            },
+        })
+    end,
+    
+    ["clangd"] = function()
+        require("clangd_extensions").setup({
+            server = {
+                capabilities = capabilities,
+                cmd = {"clangd", "--background-index"}
+            },
+        })
+    end,
+    
+    -- For tsserver, make sure we use the new name
+    ["tsserver"] = function()
+        lspconfig.ts_ls.setup({
+            capabilities = capabilities,
+        })
+    end,
 })
 
--- Rust
-local rt = require("rust-tools")
-rt.setup({
-  server = {
-    capabilities = capabilities,
-    settings = {
-      ["rust-analyzer"] = {
-        checkOnSave = {
-          command = "clippy",
-        },
-      },
-    },
-  },
-})
-
--- LSP keybindings
+-- LSP keybindings with fix for formatting function
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('UserLspConfig', {}),
   callback = function(ev)
@@ -199,7 +267,8 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
     vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
     vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-    vim.keymap.set('n', '<leader>f', vim.lsp.buf.formatting, opts)
+    -- Use format() instead of formatting which is deprecated
+    vim.keymap.set('n', '<leader>f', function() vim.lsp.buf.format({ async = true }) end, opts)
   end,
 })
 
@@ -283,23 +352,21 @@ end, {})
 
 -- Test Runner
 vim.g['test#cpp#runner'] = 'gtest'
+vim.api.nvim_set_keymap('n', '<leader>t', ':TestNearest<CR>', {noremap = true})
+vim.api.nvim_set_keymap('n', '<leader>T', ':TestFile<CR>', {noremap = true})
+
+-- Telescope
+local telescope = require('telescope')
+telescope.setup()
+
+-- Key Mappings
+vim.g.mapleader = " "
+vim.api.nvim_set_keymap('n', '<C-n>', ':NvimTreeToggle<CR>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '<leader>ff', ':Telescope find_files<CR>', {noremap = true})
 vim.api.nvim_set_keymap('n', '<leader>fg', ':Telescope live_grep<CR>', {noremap = true})
 vim.api.nvim_set_keymap('n', '<leader>fb', ':Telescope buffers<CR>', {noremap = true})
 vim.api.nvim_set_keymap('n', '<leader>fh', ':Telescope help_tags<CR>', {noremap = true})
 vim.api.nvim_set_keymap('n', '<leader>f', ':Format<CR>', {noremap = true})
-
--- Treesitter configuration
-require('nvim-treesitter.configs').setup {
-  ensure_installed = { "lua", "rust", "cpp", "c", "python", "go", "javascript", "typescript", "html", "css", "json", "markdown" },
-  highlight = {
-    enable = true,
-    additional_vim_regex_highlighting = false,
-  },
-  indent = {
-    enable = true
-  },
-}
 
 -- Fidget setup for LSP progress
 require("fidget").setup({})
@@ -335,14 +402,4 @@ if is_mac then
 elseif is_linux then
   -- Linux specific settings
   vim.g.python3_host_prog = '/usr/bin/python3'
-end>t', ':TestNearest<CR>', {noremap = true})
-vim.api.nvim_set_keymap('n', '<leader>T', ':TestFile<CR>', {noremap = true})
-
--- Telescope
-local telescope = require('telescope')
-telescope.setup()
-
--- Key Mappings
-vim.g.mapleader = " "
-vim.api.nvim_set_keymap('n', '<C-n>', ':NvimTreeToggle<CR>', {noremap = true, silent = true})
-vim.api.nvim_set_keymap('n', '<leader
+end
