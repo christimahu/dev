@@ -1,0 +1,39 @@
+# This file serves as a bootstrap for the development environment
+# It sets up Neovim config and sources the shared shell functions
+
+# Create Neovim config directory if it doesn't exist
+mkdir -p "$HOME/.config/nvim"
+
+# Create symlink to init.lua if it doesn't exist
+if [ ! -L "$HOME/.config/nvim/init.lua" ]; then
+    echo "Creating symlink for Neovim configuration"
+    ln -sf "$HOME/dev/config/init.lua" "$HOME/.config/nvim/init.lua"
+fi
+
+# Source the shared shell functions
+if [ -f "$HOME/dev/config/shell_functions" ]; then
+    source "$HOME/dev/config/shell_functions"
+else
+    echo "Warning: shell_functions file not found at $HOME/dev/config/shell_functions"
+fi
+
+# Set up bash prompt with git branch info
+parse_git_branch() {
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+
+export PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\]\$ "
+
+# History settings
+export HISTSIZE=10000
+export HISTFILESIZE=20000
+export HISTCONTROL=ignoreboth
+shopt -s histappend
+
+# Better tab completion
+bind "set completion-ignore-case on"
+bind "set show-all-if-ambiguous on"
+
+# Environment variables
+export EDITOR=nvim
+export VISUAL=nvim

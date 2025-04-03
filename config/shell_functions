@@ -1,0 +1,461 @@
+# ==========================================================================
+# Shell Function Library
+# ==========================================================================
+# This file contains utility functions for common development tasks.
+# It is designed to be sourced from either .bashrc or .zshrc.
+#
+# Author: Christi Mahu
+# Homepage: https://christimahu.dev
+# License: Mozilla Public License 2.0
+# ==========================================================================
+
+# ==========================================================================
+# Common Command Aliases
+# ==========================================================================
+# These aliases provide shortcuts for frequently used commands.
+
+# Use Python 3 as the default Python interpreter
+alias python="python3"
+
+# Use pip3 as the default pip command
+alias pip="pip3"
+
+# Use Neovim as the default editor
+alias vim="nvim"
+
+# Shortcut for git difftool
+alias ghdf="git difftool"
+
+# Enhanced grep with line numbers and color
+alias gp='grep -rn --color=auto'
+
+# Case-insensitive enhanced grep
+alias gpi='grep -rni --color=auto'
+
+# ==========================================================================
+# File and Directory Utilities
+# ==========================================================================
+# These functions provide enhanced file and directory operations.
+
+# HTTP Server
+# -----------
+# Serves files from a specified directory over HTTP.
+# Usage: srv [PORT] [DIRECTORY]
+# Example: srv 8080 ./public
+srv() {
+    local port=${1:-8000}
+    local dir=${2:-.}
+    
+    # Ensure the directory exists
+    if [ ! -d "$dir" ]; then
+        echo "Error: Directory '$dir' does not exist"
+        return 1
+    fi
+    
+    # Try to locate srv binary
+    local srv_bin
+    if [ -f "$HOME/dev/tools/srv/target/release/srv" ]; then
+        srv_bin="$HOME/dev/tools/srv/target/release/srv"
+    elif [ -f "$HOME/srv/target/release/srv" ]; then
+        srv_bin="$HOME/srv/target/release/srv"
+    else
+        echo "srv binary not found. Attempting to build it..."
+        
+        # Check if the source exists
+        if [ -d "$HOME/dev/tools/srv" ]; then
+            cd "$HOME/dev/tools/srv"
+            echo "Building srv with cargo (this may take a moment)..."
+            cargo build --release
+            
+            if [ -f "$HOME/dev/tools/srv/target/release/srv" ]; then
+                srv_bin="$HOME/dev/tools/srv/target/release/srv"
+                echo "Build successful!"
+            else
+                echo "Build failed. Please check the error messages above."
+                cd - > /dev/null
+                return 1
+            fi
+            cd - > /dev/null
+        else
+            echo "Error: srv source not found in $HOME/dev/tools/srv"
+            return 1
+        fi
+    fi
+    
+    # Run the server
+    echo "Starting server on port $port serving from $dir"
+    "$srv_bin" "$port" "$dir"
+}
+
+# TAR Archive Utilities
+# ---------------------
+# These functions simplify creating and extracting tar archives.
+
+# Extract a tar.gz archive into a directory named after the archive
+# Usage: untarfolder ARCHIVE.tar.gz
+untarfolder() { 
+    mkdir -p "${1%.tar.gz}" && tar -xzf "$1" -C "${1%.tar.gz}"; 
+}
+
+# Create a tar.gz archive from a directory
+# Usage: tarfolder DIRECTORY [ARCHIVE_NAME]
+# Example: tarfolder my-project my-backup.tar.gz
+tarfolder() {
+    if [ -z "$1" ]; then
+        echo "Usage: tarfolder DIRECTORY [ARCHIVE_NAME]"
+        return 1
+    fi
+    
+    local dir="$1"
+    local archive="${2:-${dir}.tar.gz}"
+    
+    if [ ! -d "$dir" ]; then
+        echo "Error: Directory '$dir' does not exist"
+        return 1
+    fi
+    
+    echo "Creating archive '$archive' from directory '$dir'..."
+    tar -czf "$archive" "$dir"
+    echo "Done! Archive size: $(du -h "$archive" | cut -f1)"
+}
+
+# Directory Tree Visualization
+# ---------------------------
+# A cross-platform implementation of the 'tree' command that shows
+# file permissions and sizes. Uses the system tree command on Linux
+# if available.
+# 
+# Usage: tree [OPTIONS] [DIRECTORY]
+# Options:
+#   -a             Show hidden files
+#   -L LEVEL       Limit depth of directory display
+#   -I PATTERN     Exclude files matching PATTERN
+tree() {
+    # Use system tree command on Linux if available
+    if command -v tree >/dev/null 2>&1 && [[ "$(uname)" = "Linux" ]]; then
+        command tree -C "$@"
+        return
+    fi
+    # Custom implementation for macOS or if tree is not available
+    local exclude=""
+    local show_hidden=0
+    local max_depth=0
+    local cur_depth=0
+    local i=1
+    local dir=""
+    
+    # Simple argument parsing
+    while [[ $i -le $# ]]; do
+        local arg="${!i}"
+        if [[ "$arg" == "-I" && $((i+1)) -le $# ]]; then
+            i=$((i+1))
+            exclude="${!i}"
+        elif [[ "$arg" == "-a" ]]; then
+            show_hidden=1
+        elif [[ "$arg" == "-L" && $((i+1)) -le $# ]]; then
+            i=$((i+1))
+            max_depth="${!i}"
+        elif [[ -d "$arg" ]]; then
+            dir="$arg"
+        fi
+        i=$((i+1))
+    done
+    
+    # Default to current directory if not specified
+    if [[ -z "$dir" ]]; then
+        dir="."
+    fi
+    
+    # Print directory name
+    if [[ "$dir" == "." ]]; then
+        echo "."
+    else
+        echo "$dir"
+    fi
+    
+    # Process a directory and print its contents
+    process_dir() {
+        local dir="$1"
+        local prefix="$2"
+        local depth="$3"
+        
+        # Check max depth
+        if [[ $max_depth -gt 0 && $depth -ge $max_depth ]]; then
+            return
+        fi
+        
+        # Get all files/dirs in the directory
+        local files=()
+        while IFS= read -r -d $'\0' file; do
+            files+=("$file")
+        done < <(find "$dir" -mindepth 1 -maxdepth 1 -print0 | sort -z)
+        
+        local total=${#files[@]}
+        local count=0
+        
+        for file in "${files[@]}"; do
+            count=$((count+1))
+            local basename=$(basename "$file")
+            
+            # Skip hidden files unless -a is specified
+            if [[ "$basename" == .* && $show_hidden -eq 0 ]]; then
+                continue
+            fi
+            
+            # Skip excluded patterns
+            if [[ -n "$exclude" && "$basename" == $exclude ]]; then
+                continue
+            fi
+            
+            # Skip .git directories
+            if [[ "$basename" == ".git" ]]; then
+                continue
+            fi
+            
+            # Get file info
+            local perm=$(ls -ld "$file" | awk '{print $1}')
+            local size=$(ls -lh "$file" | awk '{print $5}')
+            
+            # Determine connector
+            local connector="├── "
+            local next_prefix="$prefix│   "
+            if [[ $count -eq $total ]]; then
+                connector="└── "
+                next_prefix="$prefix    "
+            fi
+            
+            # Print file/directory with permissions and size
+            if [[ -d "$file" ]]; then
+                printf "%s%s \033[1;34m%s/\033[0m [%s]\n" "$prefix" "$connector" "$basename" "$perm"
+                process_dir "$file" "$next_prefix" $((depth+1))
+            else
+                printf "%s%s %s [%s, %s]\n" "$prefix" "$connector" "$basename" "$perm" "$size"
+            fi
+        done
+    }
+    
+    process_dir "$dir" "" 0
+}
+
+# ==========================================================================
+# Git Utilities
+# ==========================================================================
+# These functions enhance Git workflow.
+
+# Clean up local branches that no longer exist on the remote
+# Usage: ghprune
+ghprune() {
+  git fetch --prune
+
+  echo "Checking for local branches that no longer exist on the remote..."
+
+  local branch
+  local orphaned=()
+
+  for branch in $(git for-each-ref --format='%(refname:short)' refs/heads/); do
+    if ! git rev-parse --verify --quiet "origin/${branch}" > /dev/null; then
+      if [[ "$branch" != "main" && "$branch" != "master" ]]; then
+        orphaned+=("$branch")
+      fi
+    fi
+  done
+
+  if (( ${#orphaned[@]} == 0 )); then
+    echo "No orphaned local branches found."
+    return
+  fi
+
+  echo "Found local branches with no matching remote:"
+  for branch in "${orphaned[@]}"; do
+    echo "  $branch"
+  done
+
+  echo
+  for branch in "${orphaned[@]}"; do
+    read "REPLY?Delete branch '$branch'? [y/N] "
+    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+      if git branch -d "$branch"; then
+        echo "Deleted $branch."
+      else
+        read "FORCE?Branch '$branch' is not fully merged. Force delete? [y/N] "
+        if [[ "$FORCE" =~ ^[Yy]$ ]]; then
+          git branch -D "$branch" && echo "Force deleted $branch."
+        else
+          echo "Skipped $branch."
+        fi
+      fi
+    else
+      echo "Skipped $branch."
+    fi
+  done
+}
+
+# ==========================================================================
+# Google Cloud Platform Utilities
+# ==========================================================================
+# These functions simplify working with Google Cloud Platform.
+
+# Show current GCP configuration and list available projects
+# Usage: gcpinfo
+gcpinfo() {
+    echo "Current GCP configuration:"
+    gcloud config list
+
+    echo -e "\nAvailable projects:"
+    gcloud projects list
+}
+
+# Switch between GCP projects
+# Usage: gcpproject PROJECT_ID
+gcpproject() {
+    if [ -z "$1" ]; then
+        echo "Usage: gcpproject PROJECT_ID"
+        return 1
+    fi
+    
+    gcloud config set project "$1"
+    echo "Switched to project: $1"
+}
+
+# Create a new App Engine application in the specified region
+# Usage: gcpappcreate [REGION]
+gcpappcreate() {
+    local region=${1:-us-central}
+    
+    echo "Creating App Engine application in region: $region"
+    gcloud app create --region="$region"
+}
+
+# Deploy application to App Engine
+# Usage: gcpappdeploy [VERSION] [YAML_FILE]
+gcpappdeploy() {
+    local version=${1:-$(date +%Y%m%d%H%M%S)}
+    local yaml=${2:-app.yaml}
+    
+    if [ ! -f "$yaml" ]; then
+        echo "Error: $yaml file not found"
+        return 1
+    fi
+    
+    echo "Deploying to App Engine with version: $version"
+    gcloud app deploy "$yaml" --version="$version" --quiet
+}
+
+# Start Cloud Storage emulator for local development
+# Usage: gcpstoragestart [PORT]
+gcpstoragestart() {
+    local port=${1:-8888}
+    
+    echo "Starting Cloud Storage emulator on port $port"
+    gcloud beta emulators storage start --host-port=localhost:$port
+}
+
+# Start Datastore emulator for local development
+# Usage: gcpdatastorestart [PORT]
+gcpdatastorestart() {
+    local port=${1:-8081}
+    
+    echo "Starting Datastore emulator on port $port"
+    gcloud beta emulators datastore start --host-port=localhost:$port
+}
+
+# Start Pub/Sub emulator for local development
+# Usage: gcppubsubstart [PORT]
+gcppubsubstart() {
+    local port=${1:-8085}
+    
+    echo "Starting Pub/Sub emulator on port $port"
+    gcloud beta emulators pubsub start --host-port=localhost:$port
+}
+
+# Start Firestore emulator for local development
+# Usage: gcpfirestorestart [PORT]
+gcpfirestorestart() {
+    local port=${1:-8080}
+    
+    echo "Starting Firestore emulator on port $port"
+    gcloud beta emulators firestore start --host-port=localhost:$port
+}
+
+# Start all GCP emulators in separate terminal sessions
+# Usage: gcpemulatorsstart
+gcpemulatorsstart() {
+    echo "Starting all GCP emulators in separate terminal sessions..."
+    
+    # This attempts to open separate terminal windows based on available terminals
+    if command -v gnome-terminal &> /dev/null; then
+        gnome-terminal -- bash -c "gcpdatastorestart; bash"
+        gnome-terminal -- bash -c "gcppubsubstart; bash"
+        gnome-terminal -- bash -c "gcpfirestorestart; bash"
+        gnome-terminal -- bash -c "gcpstoragestart; bash"
+    elif command -v xterm &> /dev/null; then
+        xterm -e "bash -c 'gcpdatastorestart; bash'" &
+        xterm -e "bash -c 'gcppubsubstart; bash'" &
+        xterm -e "bash -c 'gcpfirestorestart; bash'" &
+        xterm -e "bash -c 'gcpstoragestart; bash'" &
+    else
+        echo "Unable to start emulators in separate terminals."
+        echo "Please start them individually:"
+        echo "  gcpdatastorestart"
+        echo "  gcppubsubstart"
+        echo "  gcpfirestorestart"
+        echo "  gcpstoragestart"
+    fi
+}
+
+# Create a new Google Cloud Storage bucket
+# Usage: gcpbucketcreate BUCKET_NAME [LOCATION]
+gcpbucketcreate() {
+    if [ -z "$1" ]; then
+        echo "Usage: gcpbucketcreate BUCKET_NAME [LOCATION]"
+        return 1
+    fi
+    
+    local bucket="$1"
+    local location=${2:-us-central1}
+    
+    gcloud storage buckets create "gs://$bucket" --location="$location"
+}
+
+# List all Google Cloud Storage buckets in the current project
+# Usage: gcpbuckets
+gcpbuckets() {
+    gcloud storage buckets list
+}
+
+# ==========================================================================
+# Terraform Utilities
+# ==========================================================================
+# These functions simplify working with Terraform.
+
+# Initialize a Terraform project
+# Usage: tfinit
+tfinit() {
+    terraform init
+}
+
+# Plan Terraform changes
+# Usage: tfplan
+tfplan() {
+    terraform plan
+}
+
+# Apply Terraform changes
+# Usage: tfapply
+tfapply() {
+    echo "Running terraform apply. You may want to add specific variables."
+    echo "Example: terraform apply -var account=ACCOUNT -var project=PROJECT -var region=REGION -var bucket=BUCKET"
+    terraform apply
+}
+
+# Refresh Terraform state
+# Usage: tfrefresh
+tfrefresh() {
+    terraform refresh
+}
+
+# Destroy Terraform-managed infrastructure
+# Usage: tfdestroy
+tfdestroy() {
+    terraform destroy
+}
