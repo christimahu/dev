@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev Environment · Christi Mahu</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/alpine.js/3.10.3/cdn.min.js" defer></script>
+</head>
+<body class="bg-pattern text-white font-sans antialiased" style="font-family: 'Inter', sans-serif;">
+  <div x-data="{ tab: 'overview', mobileMenu: false }" class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50 shadow-lg">
+      <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white mr-3 shadow-lg">
+            <i class="fas fa-cube text-xl"></i>
+          </div>
+          <h1 class="text-2xl font-bold text-gradient">Dev Environment</h1>
+        </div>
+        
+        <!-- Desktop Menu -->
+        <nav class="hidden md:flex space-x-8">
+          <button @click="tab = 'overview'" :class="tab === 'overview' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-300 hover:text-white'" class="pb-1 transition">Overview</button>
+          <button @click="tab = 'install'" :class="tab === 'install' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-300 hover:text-white'" class="pb-1 transition">Installation</button>
+          <button @click="tab = 'usage'" :class="tab === 'usage' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-300 hover:text-white'" class="pb-1 transition">Usage</button>
+          <a href="https://github.com/christimahu/dev" class="text-gray-300 hover:text-white flex items-center transition">
+            <i class="fab fa-github mr-1"></i> GitHub
+          </a>
+        </nav>
+        
+        <!-- Mobile Menu Button -->
+        <button @click="mobileMenu = !mobileMenu" class="md:hidden text-gray-300 hover:text-white">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+      </div>
+      
+      <!-- Mobile Menu -->
+      <div x-show="mobileMenu" @click.away="mobileMenu = false" class="md:hidden bg-gray-800 px-4 py-2 border-b border-gray-700">
+        <nav class="flex flex-col space-y-2">
+          <button @click="tab = 'overview'; mobileMenu = false" class="text-left py-2 text-gray-300 hover:text-white">Overview</button>
+          <button @click="tab = 'install'; mobileMenu = false" class="text-left py-2 text-gray-300 hover:text-white">Installation</button>
+          <button @click="tab = 'usage'; mobileMenu = false" class="text-left py-2 text-gray-300 hover:text-white">Usage</button>
+          <a href="https://github.com/christimahu/dev" class="text-left py-2 text-gray-300 hover:text-white flex items-center">
+            <i class="fab fa-github mr-1"></i> GitHub
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+      <!-- Hero Section -->
+      <section class="py-16 md:py-24 px-6 text-center relative overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-20">
+          <div class="absolute top-20 left-1/4 w-72 h-72 bg-blue-600 rounded-full filter blur-3xl"></div>
+          <div class="absolute bottom-20 right-1/4 w-96 h-96 bg-indigo-600 rounded-full filter blur-3xl"></div>
+        </div>
+
+        <div class="relative z-10 max-w-3xl mx-auto">
+          <h2 class="text-4xl md:text-5xl font-bold mb-6 text-gradient">Containerized Development Environment</h2>
+          <p class="text-lg md:text-xl text-gray-300 mb-10 leading-relaxed">
+            A seamless, cross-platform development environment that keeps your host system clean 
+            while providing a complete suite of development tools that follow you across all your machines.
+          </p>
+          
+          <div class="flex flex-wrap justify-center gap-4">
+            <a href="#install" @click="tab = 'install'" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-lg transition flex items-center">
+              <i class="fas fa-download mr-2"></i> Get Started
+            </a>
+            <a href="https://github.com/christimahu/dev" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-lg shadow-lg transition flex items-center">
+              <i class="fab fa-github mr-2"></i> View on GitHub
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Overview Section -->
+      <section x-show="tab === 'overview'" class="container mx-auto px-4 py-10">
+        <div class="max-w-3xl mx-auto space-y-12">
+          <div>
+            <h3 class="text-2xl font-semibold mb-6 text-gradient">Why Use a Development Container?</h3>
+            <p class="text-gray-300 mb-6 leading-relaxed">
+              Development environments can be complex to set up and maintain. Language versions, 
+              dependencies, and tools can conflict between projects. The Dev Environment solves this
+              by providing a consistent, reproducible workspace that runs identically everywhere.
+            </p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-gray-800 p-6 rounded-xl shadow-xl hover:shadow-2xl transition">
+              <div class="w-12 h-12 bg-blue-600 bg-opacity-20 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-rocket text-blue-400 text-xl"></i>
+              </div>
+              <h3 class="text-xl font-semibold mb-2">Instant Setup</h3>
+              <p class="text-gray-300">Get a complete development environment within minutes, ready for coding.</p>
+            </div>
+            
+            <div class="bg-gray-800 p-6 rounded-xl shadow-xl hover:shadow-2xl transition">
+              <div class="w-12 h-12 bg-blue-600 bg-opacity-20 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-tools text-blue-400 text-xl"></i>
+              </div>
+              <h3 class="text-xl font-semibold mb-2">Multi-Language</h3>
+              <p class="text-gray-300">C++, Rust, Go, Python, Node.js, and more with all tools pre-configured.</p>
+            </div>
+            
+            <div class="bg-gray-800 p-6 rounded-xl shadow-xl hover:shadow-2xl transition">
+              <div class="w-12 h-12 bg-blue-600 bg-opacity-20 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-code-branch text-blue-400 text-xl"></i>
+              </div>
+              <h3 class="text-xl font-semibold mb-2">Portable</h3>
+              <p class="text-gray-300">Works identically on macOS, Linux, and Windows with the same configuration.</p>
+            </div>
+          </div>
+          
+          <div>
+            <h3 class="text-2xl font-semibold mb-6 text-gradient">Included Tools</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+              <div class="p-4 bg-gray-800 rounded-lg flex items-center justify-center">
+                <div>
+                  <i class="fab fa-rust text-lg text-orange-400 mb-2"></i>
+                  <p>Rust</p>
+                </div>
+              </div>
+              <div class="p-4 bg-gray-800 rounded-lg flex items-center justify-center">
+                <div>
+                  <i class="fas fa-code text-lg text-blue-400 mb-2"></i>
+                  <p>C/C++</p>
+                </div>
+              </div>
+              <div class="p-4 bg-gray-800 rounded-lg flex items-center justify-center">
+                <div>
+                  <i class="fab fa-python text-lg text-yellow-400 mb-2"></i>
+                  <p>Python</p>
+                </div>
+              </div>
+              <div class="p-4 bg-gray-800 rounded-lg flex items-center justify-center">
+                <div>
+                  <i class="fab fa-golang text-lg text-blue-400 mb-2"></i>
+                  <p>Go</p>
+                </div>
+              </div>
+              <div class="p-4 bg-gray-800 rounded-lg flex items-center justify-center">
+                <div>
+                  <i class="fab fa-node-js text-lg text-green-400 mb-2"></i>
+                  <p>Node.js</p>
+                </div>
+              </div>
+              <div class="p-4 bg-gray-800 rounded-lg flex items-center justify-center">
+                <div>
+                  <i class="fab fa-google text-lg text-blue-400 mb-2"></i>
+                  <p>Cloud SDK</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Installation Section -->
+      <section x-show="tab === 'install'" id="install" class="container mx-auto px-4 py-10">
+        <div class="max-w-3xl mx-auto">
+          <h2 class="text-3xl font-bold mb-10 text-gradient">Installation</h2>
+          
+          <div class="bg-gray-800 p-6 md:p-8 rounded-xl shadow-xl mb-12">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+              <i class="fas fa-check-circle text-green-500 mr-2"></i>
+              Prerequisites
+            </h3>
+            <ul class="list-disc list-inside text-gray-300 mb-6 space-y-2 pl-4">
+              <li>Docker (Desktop for macOS/Windows, Engine for Linux)</li>
+              <li>Python 3.6+ (already installed on macOS, most Linux distros)</li>
+              <li>Git for version control</li>
+            </ul>
+          </div>
+          
+          <div class="space-y-6">
+            <div class="flex items-start">
+              <div class="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold mt-1 mr-4 shrink-0">1</div>
+              <div>
+                <h3 class="text-xl font-semibold mb-2">Clone the Repository</h3>
+                <div class="bg-gray-900 p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto" style="font-family: 'JetBrains Mono', monospace;">
+                  <code>git clone https://github.com/christimahu/dev.git ~/dev</code>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex items-start">
+              <div class="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold mt-1 mr-4 shrink-0">2</div>
+              <div>
+                <h3 class="text-xl font-semibold mb-2">Run the Setup Script</h3>
+                <div class="bg-gray-900 p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto" style="font-family: 'JetBrains Mono', monospace;">
+                  <code>cd ~/dev/scripts<br>python3 setup.py</code>
+                </div>
+                <p class="text-gray-400 text-sm">This configures your host system with necessary symlinks and aliases.</p>
+              </div>
+            </div>
+            
+            <div class="flex items-start">
+              <div class="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold mt-1 mr-4 shrink-0">3</div>
+              <div>
+                <h3 class="text-xl font-semibold mb-2">Source Your Shell Configuration</h3>
+                <div class="bg-gray-900 p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto" style="font-family: 'JetBrains Mono', monospace;">
+                  <code># For Zsh (macOS default)<br>source ~/.zshrc<br><br># For Bash<br>source ~/.bashrc</code>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex items-start">
+              <div class="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold mt-1 mr-4 shrink-0">4</div>
+              <div>
+                <h3 class="text-xl font-semibold mb-2">Build the Container</h3>
+                <div class="bg-gray-900 p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto" style="font-family: 'JetBrains Mono', monospace;">
+                  <code>dev build</code>
+                </div>
+                <p class="text-gray-400 text-sm">This builds the Docker container with all development tools. It may take a few minutes on first run.</p>
+              </div>
+            </div>
+            
+            <div class="flex items-start">
+              <div class="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold mt-1 mr-4 shrink-0">5</div>
+              <div>
+                <h3 class="text-xl font-semibold mb-2">Start Using Your Environment</h3>
+                <div class="bg-gray-900 p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto" style="font-family: 'JetBrains Mono', monospace;">
+                  <code>cd ~/your-project<br>dev</code>
+                </div>
+                <p class="text-gray-400 text-sm">Run the <code class="bg-gray-800 rounded px-1">dev</code> command from any directory to enter the development environment.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Usage Section -->
+      <section x-show="tab === 'usage'" class="container mx-auto px-4 py-10">
+        <div class="max-w-3xl mx-auto">
+          <h2 class="text-3xl font-bold mb-10 text-gradient">Usage</h2>
+          
+          <div class="bg-gray-800 p-6 md:p-8 rounded-xl shadow-xl mb-12">
+            <h3 class="text-xl font-semibold mb-4">Common Commands</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full mb-4">
+                <tr class="border-b border-gray-700">
+                  <td class="py-3 px-4 font-mono bg-gray-700 rounded">dev</td>
+                  <td class="py-3 px-4">Enter a shell in the development container</td>
+                </tr>
+                <tr class="border-b border-gray-700">
+                  <td class="py-3 px-4 font-mono bg-gray-700 rounded">dev build</td>
+                  <td class="py-3 px-4">Build or rebuild the development container</td>
+                </tr>
+                <tr class="border-b border-gray-700">
+                  <td class="py-3 px-4 font-mono bg-gray-700 rounded">dev status</td>
+                  <td class="py-3 px-4">Show status of the development container</td>
+                </tr>
+                <tr class="border-b border-gray-700">
+                  <td class="py-3 px-4 font-mono bg-gray-700 rounded">dev exec [cmd]</td>
+                  <td class="py-3 px-4">Execute a command in the container</td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 font-mono bg-gray-700 rounded">dev stop</td>
+                  <td class="py-3 px-4">Stop the development container</td>
+                </tr>
+              </table>
+            </div>
+            <p class="text-gray-300 mb-2">
+              <i class="fas fa-info-circle text-blue-400 mr-1"></i>
+              When you exit the shell with <code class="bg-gray-700 px-1 rounded">exit</code>, the container 
+              will automatically stop and remove itself.
+            </p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-gray-800 p-6 rounded-xl shadow-xl">
+              <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-terminal text-purple-400 mr-2"></i>
+                Helper Functions
+              </h3>
+              <ul class="space-y-2 text-gray-300">
+                <li><code class="bg-gray-700 px-1 rounded">srv [port] [dir]</code> - HTTP file server</li>
+                <li><code class="bg-gray-700 px-1 rounded">tree [dir]</code> - Enhanced directory listing</li>
+                <li><code class="bg-gray-700 px-1 rounded">dockerrm</code> - Remove all Docker containers</li>
+                <li><code class="bg-gray-700 px-1 rounded">ghprune</code> - Clean Git branches</li>
+                <li><code class="bg-gray-700 px-1 rounded">tarfolder/untarfolder</code> - Archive utilities</li>
+              </ul>
+            </div>
+            
+            <div class="bg-gray-800 p-6 rounded-xl shadow-xl">
+              <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-sliders-h text-yellow-400 mr-2"></i>
+                Customization
+              </h3>
+              <ul class="space-y-2 text-gray-300">
+                <li>Edit <code class="bg-gray-700 px-1 rounded">config/init.lua</code> for NeoVim settings</li>
+                <li>Add your own functions to <code class="bg-gray-700 px-1 rounded">config/shell_functions</code></li>
+                <li>Create <code class="bg-gray-700 px-1 rounded">custom.env</code> for environment variables</li>
+                <li>Modify <code class="bg-gray-700 px-1 rounded">Dockerfile</code> to add new tools</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800 py-8 mt-12">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <div class="flex items-center">
+              <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-2">
+                <i class="fas fa-cube text-sm"></i>
+              </div>
+              <span class="text-lg font-semibold text-gradient">Dev Environment</span>
+            </div>
+            <p class="text-gray-400 text-sm mt-2">A containerized development environment</p>
+          </div>
+          
+          <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-8 text-center md:text-left">
+            <a href="https://github.com/christimahu/dev" class="text-gray-400 hover:text-white transition flex items-center justify-center md:justify-start">
+              <i class="fab fa-github mr-2"></i> GitHub
+            </a>
+            <div class="text-gray-400 text-sm">
+              Created by <a href="https://github.com/christimahu" class="text-blue-400 hover:text-blue-300">Christi Mahu</a>
+            </div>
+            <div class="text-gray-500 text-sm">
+              MPL 2.0 License
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
