@@ -126,22 +126,58 @@ function initMatrixEffects() {
   }, 10000);
   
   // Create some random matrix characters that float down occasionally
-  const rustSnippets = [
-    'let mut', 'fn main', 'struct', 'impl', 'enum', 'match', 'Option<T>', 
-    'Result<T, E>', 'unwrap()', 'expect()', '#[derive]', 'Vec<T>', 'HashMap', 
-    'async fn', 'await', '.collect()', '::new()', '->'
-  ];
-  
+const rustSnippets = [
+  'fn main() { println!("Hello, world!"); }',
+  'vec![1, 2, 3].iter().sum::<i32>()',
+  '"hello".chars().rev().collect::<String>()',
+  'Some(42).unwrap_or_default()',
+  'Option::<u8>::None.unwrap_or(0)',
+  'Err::<(), _>("error").expect_err("must fail")',
+  '#[derive(Debug, Clone, Copy)] struct Foo;',
+  'async fn fetch() -> Result<(), Box<dyn Error>> { Ok(()) }',
+  'std::collections::HashMap::<u32, u32>::new()',
+  '(0..10).collect::<Vec<u32>>()',
+  'futures::executor::block_on(async { 42 })',
+  'serde_json::from_str::<Vec<u8>>("[]").unwrap()',
+  'tokio::spawn(async { println!("async task"); })',
+  'impl Default for MyType { fn default() -> Self { Self {} } }',
+  'match Some(3) { Some(x) => x, None => 0 }',
+  'Result::<(), &str>::Ok(()).unwrap()',
+  'std::env::args().collect::<Vec<String>>()',
+  'std::mem::replace(&mut val, new_val)',
+  '"42".parse::<i32>().unwrap_or(0)',
+  'my_vec.into_iter().map(|x| x + 1).collect::<Vec<_>>()',
+  'Box::new([1, 2, 3])',
+  'Rc::new("shared string".to_string())',
+  'Mutex::new(Vec::<u8>::new())',
+  'format!("The number is: {}", 42)',
+  '"example".to_uppercase()',
+  '" Rust ".trim().to_lowercase()',
+  'Instant::now().elapsed().as_secs()',
+  'std::thread::sleep(Duration::from_millis(10))',
+  'u32::MAX.saturating_add(1)',
+  'File::create("output.txt").unwrap()',
+  'fs::read_to_string("input.txt").unwrap()',
+  'IpAddr::from_str("127.0.0.1").unwrap()',
+  '(0..).take(5).collect::<Vec<_>>()',
+  '"rust,is,awesome".split(",").collect::<Vec<_>>()',
+  '[0; 10].iter().enumerate().for_each(|(i, _)| println!("{}", i))',
+  'Regex::new(r"\\d+").unwrap().is_match("123")',
+  'chrono::Utc::now().to_rfc3339()',
+  'url::Url::parse("https://rust-lang.org").unwrap()',
+  'once_cell::sync::Lazy::new(|| 42)',
+  '(1..=10).filter(|x| x % 2 == 0).count()',
+  'str::repeat("rust", 3)',
+  '"rust".chars().count()'
+];
+
   function createMatrixChar() {
-    // Only create if we pass the random check to keep characters sparse
-    if (Math.random() > 0.9) {
       const char = document.createElement('div');
-      // Use random Rust code snippets instead of 1s and 0s
       char.textContent = rustSnippets[Math.floor(Math.random() * rustSnippets.length)];
       char.style.position = 'fixed';
       char.style.color = 'var(--matrix-green)';
-      char.style.fontSize = '6px'; // Very small font size
-      char.style.opacity = '0.5';
+      char.style.fontSize = '10px'; 
+      char.style.opacity = '0.1';
       char.style.left = (Math.random() * 100) + 'vw';
       char.style.top = '0vh';
       char.style.zIndex = '-1';
@@ -150,7 +186,7 @@ function initMatrixEffects() {
       
       // Animate downward like in The Matrix
       let pos = 0;
-      const speed = 0.05 + (Math.random() * 0.1); // Random speeds
+      const speed = 0.01 + (Math.random() * 0.1); // Random speeds
       const animate = () => {
         pos += speed;
         char.style.top = pos + 'vh';
@@ -163,7 +199,6 @@ function initMatrixEffects() {
       };
       
       requestAnimationFrame(animate);
-    }
   }
   
   // Create floating matrix characters occasionally
