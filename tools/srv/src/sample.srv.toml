@@ -1,0 +1,7 @@
+port = 8080
+directory = "public"
+enable_cors = true
+show_hidden = false
+follow_symlinks = true
+index_file = "index.html"
+max_port_attempts = 5

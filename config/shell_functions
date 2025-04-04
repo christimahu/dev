@@ -54,21 +54,21 @@ srv() {
     
     # Try to locate srv binary
     local srv_bin
-    if [ -f "$HOME/dev/tools/srv/target/release/srv" ]; then
-        srv_bin="$HOME/dev/tools/srv/target/release/srv"
-    elif [ -f "$HOME/srv/target/release/srv" ]; then
-        srv_bin="$HOME/srv/target/release/srv"
+    if [ -f "$HOME/.dev/tools/srv/target/release/srv" ]; then
+        srv_bin="$HOME/.dev/tools/srv/target/release/srv"
+    elif [ -f "$HOME/.dev/srv/target/release/srv" ]; then
+        srv_bin="$HOME/.dev/srv/target/release/srv"
     else
         echo "srv binary not found. Attempting to build it..."
         
         # Check if the source exists
-        if [ -d "$HOME/dev/tools/srv" ]; then
-            cd "$HOME/dev/tools/srv"
+        if [ -d "$HOME/.dev/tools/srv" ]; then
+            cd "$HOME/.dev/tools/srv"
             echo "Building srv with cargo (this may take a moment)..."
             cargo build --release
             
-            if [ -f "$HOME/dev/tools/srv/target/release/srv" ]; then
-                srv_bin="$HOME/dev/tools/srv/target/release/srv"
+            if [ -f "$HOME/.dev/tools/srv/target/release/srv" ]; then
+                srv_bin="$HOME/.dev/tools/srv/target/release/srv"
                 echo "Build successful!"
             else
                 echo "Build failed. Please check the error messages above."
@@ -77,7 +77,7 @@ srv() {
             fi
             cd - > /dev/null
         else
-            echo "Error: srv source not found in $HOME/dev/tools/srv"
+            echo "Error: srv source not found in $HOME/.dev/tools/srv"
             return 1
         fi
     fi

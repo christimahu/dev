@@ -8,15 +8,15 @@ It does NOT build the Docker container itself - that's handled by the 'dev build
 
 What this script DOES:
 1. Sets up symlinks for configuration files (NeoVim, shell configs)
-2. Configures shell integration by adding the 'dev' command alias
+2. Creates a default dev.env file if it doesn't exist
+3. Configures shell integration by adding the 'dev' command alias
 
 What this script does NOT do:
 1. Build the Docker container (use 'dev build' for that after setup)
 2. Install software packages (Docker, Python, Git are prerequisites)
-3. Build any development tools (all tools run inside the container)
 
 Usage:
-    cd ~/dev/scripts
+    cd ~/.dev/scripts
     python3 setup.py
 
 After running this script, you'll need to:
@@ -34,7 +34,7 @@ from pathlib import Path
 
 # Configuration
 # These paths define where our files are located and where symlinks should point
-DEV_DIR = str(Path.home() / "dev")  # Main development directory
+DEV_DIR = str(Path.home() / ".dev")  # Main development directory
 CONFIG_DIR = os.path.join(DEV_DIR, "config")  # Configuration files
 
 def run_command(cmd, cwd=None, check=True, capture_output=False):
@@ -217,6 +217,76 @@ def setup_config_symlinks():
     
     print("Configuration symlinks setup complete.")
 
+def setup_dev_env_file():
+    """
+    Create a default dev.env file if it doesn't exist.
+    
+    This provides a starting point for users to customize their
+    container settings.
+    """
+    print("\n=== Setting up dev.env configuration ===")
+    
+    example_env_path = os.path.join(DEV_DIR, "dev_example.env")
+    custom_env_path = os.path.join(DEV_DIR, "dev.env")
+    
+    if os.path.exists(custom_env_path):
+        print(f"dev.env already exists at {custom_env_path}")
+        print("You may want to check for new options in dev_example.env")
+    else:
+        if os.path.exists(example_env_path):
+            print(f"Creating dev.env from example")
+            shutil.copy2(example_env_path, custom_env_path)
+            print(f"Created {custom_env_path}")
+            print("Review and customize this file for your environment")
+        else:
+            print(f"Warning: Could not find {example_env_path}")
+            print("Please create dev.env manually")
+    
+    print("Environment configuration setup complete.")
+
+def setup_nvim_packer():
+    """
+    Set up Neovim's Packer plugin manager if it's not already installed.
+    
+    This ensures plugins can be installed when Neovim is launched,
+    both on the host and in the container.
+    """
+    print("\n=== Setting up Neovim Packer ===")
+    
+    home_dir = str(Path.home())
+    packer_path = os.path.join(home_dir, ".local", "share", "nvim", "site", "pack", "packer", "start", "packer.nvim")
+    
+    if os.path.exists(packer_path):
+        print("Packer is already installed")
+    else:
+        print("Installing Packer for Neovim")
+        # Create the directory structure
+        os.makedirs(os.path.dirname(packer_path), exist_ok=True)
+        
+        # Clone the Packer repository
+        run_command([
+            "git", "clone", "--depth", "1",
+            "https://github.com/wbthomason/packer.nvim", packer_path
+        ])
+        
+        # Check if nvim is available and attempt a headless plugin installation
+        if shutil.which("nvim"):
+            print("Installing plugins with Packer (this may take a moment)...")
+            try:
+                run_command([
+                    "nvim", "--headless", 
+                    "-c", "autocmd User PackerComplete quitall", 
+                    "-c", "PackerSync"
+                ], check=False)
+                print("Plugin installation initiated. Some plugins may need manual installation.")
+            except Exception as e:
+                print(f"Could not install plugins automatically: {e}")
+                print("Launch nvim and run :PackerSync manually to install plugins.")
+        else:
+            print("Neovim not found in PATH. Launch nvim and run :PackerSync manually to install plugins.")
+    
+    print("Neovim Packer setup complete.")
+
 def setup_shell_integration():
     """
     Set up shell integration for easier use of the development tools.
@@ -313,7 +383,9 @@ def main():
     This is the entry point for the setup script, which:
     1. Checks prerequisites
     2. Sets up configuration symlinks
-    3. Configures shell integration
+    3. Creates a default dev.env if needed
+    4. Sets up Neovim with Packer
+    5. Configures shell integration
     
     Note: It does NOT build the Docker container - that's done separately with 'dev build'
     """
@@ -323,18 +395,20 @@ def main():
     
     # Check if the script is running from the dev directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    if not script_dir.endswith(os.path.join("dev", "scripts")):
-        print("This script should be run from the dev/scripts directory.")
+    if not script_dir.endswith(os.path.join(".dev", "scripts")):
+        print("This script should be run from the .dev/scripts directory.")
         print(f"Current directory: {script_dir}")
-        print("Please run: cd ~/dev/scripts && python3 setup.py")
+        print("Please run: cd ~/.dev/scripts && python3 setup.py")
         sys.exit(1)
     
     # Check prerequisites
     if not check_prerequisites():
         sys.exit(1)
     
-    # Perform setup steps (excluding Docker build and tool building)
+    # Perform setup steps
     setup_config_symlinks()
+    setup_dev_env_file()
+    setup_nvim_packer()
     setup_shell_integration()
     
     print("\n=== 🎉 Setup complete! ===")

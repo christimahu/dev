@@ -2,6 +2,7 @@
 name = "srv"
 version = "0.1.0"
 edition = "2021"
+description = "A simple HTTP server for local development with config file support and enhanced content type handling"
 
 [dependencies]
 axum = "0.6.18"
@@ -10,3 +11,10 @@ tower = "0.4.13"
 tower-http = { version = "0.4.0", features = ["fs", "cors", "trace"] }
 tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
+mime_guess = "2.0.4"
+serde = { version = "1.0.171", features = ["derive"] }
+toml = "0.7.6"
+
+[dev-dependencies]
+tempfile = "3.8.0"
+reqwest = { version = "0.11.20", features = ["blocking"] }

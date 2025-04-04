@@ -17,6 +17,8 @@ RUN apt-get update --fix-missing && \
     ripgrep fd-find zsh \
     pkg-config libssl-dev \
     graphviz doxygen \
+    # Add luajit for Neovim plugins
+    luajit libluajit-5.1-dev lua5.1 liblua5.1-0-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js (fixed method)
@@ -76,11 +78,11 @@ RUN sed -i 's/axum::serve(listener, app).await/axum::Server::bind(\&addr).serve(
 
 # Create dev user and necessary directories
 RUN useradd -m -s /bin/bash me && \
-    mkdir -p /home/me/dev/config && \
-    mkdir -p /home/me/dev/tools/srv && \
+    mkdir -p /home/me/.dev/config && \
+    mkdir -p /home/me/.dev/tools/srv && \
     mkdir -p /home/me/.config/nvim && \
     # Copy srv files to user directory
-    cp -r /tmp/srv/* /home/me/dev/tools/srv/ && \
+    cp -r /tmp/srv/* /home/me/.dev/tools/srv/ && \
     # Ensure proper permissions
     chown -R me:me /home/me && \
     # Clean up
@@ -108,14 +110,15 @@ RUN /usr/local/go/bin/go install golang.org/x/tools/gopls@v0.14.2 && \
     /usr/local/go/bin/go install github.com/fatih/gomodifytags@v1.16.0 && \
     /usr/local/go/bin/go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.55.2
 
-# Setup Neovim package manager (Packer)
-RUN git clone --depth 1 https://github.com/wbthomason/packer.nvim \
-    ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-
 # Build srv tool inside the container using bash to ensure proper environment
 RUN /bin/bash -c 'source /home/me/.cargo/env && \
-    cd /home/me/dev/tools/srv && \
+    cd /home/me/.dev/tools/srv && \
     cargo build --release'
+
+# Set up Neovim with Packer
+RUN mkdir -p /home/me/.local/share/nvim/site/pack/packer/start && \
+    git clone --depth 1 https://github.com/wbthomason/packer.nvim /home/me/.local/share/nvim/site/pack/packer/start/packer.nvim && \
+    mkdir -p /home/me/.config/nvim/plugin
 
 # Stage 3: Final environment setup
 # This is the final stage that will be used for the actual container
@@ -129,8 +132,16 @@ ENV TERM=xterm-256color
 # Reset CGO for normal operation
 ENV CGO_ENABLED=1
 
-# Set working directory to the dev folder
-WORKDIR /home/me/dev
+# Set up vim -> nvim alias
+USER root
+RUN ln -sf /usr/bin/nvim /usr/local/bin/vim
+
+# Switch back to user
+USER me
+RUN echo 'alias vim=nvim' >> /home/me/.bashrc
+
+# Create code directory (if it doesn't exist)
+RUN mkdir -p /home/me/code
 
 # Default command
 CMD ["/bin/bash"]
