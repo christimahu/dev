@@ -22,6 +22,14 @@ if [ -f "$HOME/dev/scripts/dev.py" ]; then
     alias dev="python3 $HOME/dev/scripts/dev.py"
 fi
 
+# Docker cleanup shortcuts
+# Safely stop all running Docker containers
+alias dockerstop='docker stop -t 1 $(docker ps -q) 2>/dev/null || true'
+# Safely stop and remove all Docker containers
+alias dockerrm='docker stop -t 1 $(docker ps -q) 2>/dev/null || true && docker rm $(docker ps -aq) 2>/dev/null || true'
+# Remove all Docker images
+alias dockerrmi='docker rmi $(docker images -q) 2>/dev/null || true'
+
 # You can add other macOS specific configurations below
 # For example, homebrew path adjustments:
 export PATH="/opt/homebrew/bin:$PATH"

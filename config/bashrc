@@ -17,23 +17,31 @@ else
     echo "Warning: shell_functions file not found at $HOME/dev/config/shell_functions"
 fi
 
-# Set up bash prompt with git branch info
-parse_git_branch() {
-    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
-}
+# Add dev command to path if it exists
+if [ -f "$HOME/dev/scripts/dev.py" ]; then
+    alias dev="python3 $HOME/dev/scripts/dev.py"
+fi
 
-export PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\]\$ "
+# Docker cleanup shortcuts
+# Safely stop all running Docker containers
+alias dockerstop='docker stop -t 1 $(docker ps -q) 2>/dev/null || true'
+# Safely stop and remove all Docker containers
+alias dockerrm='docker stop -t 1 $(docker ps -q) 2>/dev/null || true && docker rm $(docker ps -aq) 2>/dev/null || true'
+# Remove all Docker images
+alias dockerrmi='docker rmi $(docker images -q) 2>/dev/null || true'
 
-# History settings
-export HISTSIZE=10000
-export HISTFILESIZE=20000
-export HISTCONTROL=ignoreboth
-shopt -s histappend
+# You can add other macOS specific configurations below
+# For example, homebrew path adjustments:
+export PATH="/opt/homebrew/bin:$PATH"
 
-# Better tab completion
-bind "set completion-ignore-case on"
-bind "set show-all-if-ambiguous on"
+# LLVM path for macOS
+if [ -d "/opt/homebrew/opt/llvm/bin" ]; then
+    export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+    export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
+    export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
+fi
 
-# Environment variables
-export EDITOR=nvim
-export VISUAL=nvim
+# Go path
+if [ -d "$HOME/go/bin" ]; then
+    export PATH="$HOME/go/bin:$PATH"
+fi

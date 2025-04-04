@@ -61,6 +61,19 @@ A containerized development environment for seamless cross-platform software dev
    dev
    ```
 
+## Usage
+
+The `dev` command provides a seamless way to work with your development environment:
+
+- `dev` - Enter a shell in the development container at your current directory
+- `dev build` - Build the development container image
+- `dev status` - Show container status information
+- `dev exec [command]` - Execute a command in the container
+- `dev stop` - Stop the running container
+- `dev delete` - Delete the container
+
+When you exit the container's shell, it will automatically shut down and remove the container to free up resources.
+
 ## Directory Structure
 
 ```
@@ -79,44 +92,41 @@ A containerized development environment for seamless cross-platform software dev
 └── web/                 # Project website
 ```
 
-## Usage
+## Working with Projects
 
-The `dev` command provides a seamless way to work with your development environment:
+The development environment is designed to work with your existing project structure:
 
-- `dev` - Enter a shell in the development container at your current directory
-- `dev build` - Build the development container image
-- `dev status` - Show container status information
-- `dev exec [command]` - Execute a command in the container
-- `dev stop` - Stop the running container
-- `dev delete` - Delete the container
-- `dev logs` - View container logs
-- `dev prune` - Clean up unused Docker resources
+1. Your entire home directory is mounted into the container at `/home/me`
+2. When you run `dev` from any directory:
+   - That directory is the container's working directory
+   - You can access all files from your home directory
+   - Changes made inside the container are reflected on your host system
 
-## Installation Workflow Details
+This makes it easy to work with multiple projects without having to reconfigure the environment.
 
-To understand the installation process better:
+## Custom Settings
 
-1. **Setup script (`setup.py`)**:
-   - Sets up configuration symlinks (Neovim, shell)
-   - Builds local tools like the HTTP server
-   - Creates the `dev` command alias
-   - Does NOT build the Docker container
+### Port Mappings
 
-2. **Build command (`dev build`)**:
-   - Creates the Docker image with all development tools
-   - Installs programming languages and tools
-   - Configures the development environment
+Configure custom port mappings in `custom.env` based on the provided example file:
 
-This two-step process allows for better control and separation of concerns.
+```bash
+# Create your custom environment file
+cp custom_example.env custom.env
 
-## Recommended Workflow
+# Edit with your preferred ports
+vim custom.env
+```
 
-For the best experience, we recommend:
-1. Keep your development environment in `~/dev`
-2. Store your actual projects in a separate directory (e.g., `~/code` or `~/projects`)
-3. Run the `dev` command from your project directories
+### Environment Variables
 
-This ensures a clear separation between your development tools and your project code.
+Add project-specific environment variables to your `custom.env` file:
+
+```
+NODE_ENV=development
+DEBUG=true
+API_KEY=your_api_key
+```
 
 ## Helper Functions
 
@@ -127,7 +137,9 @@ The environment includes numerous helper functions:
 - `tarfolder [dir]` - Create a tar archive from a directory
 - `untarfolder [file]` - Extract a tar file into a directory
 - `ghprune` - Prune git branches that no longer exist on remote
-- And many more!
+- `dockerstop` - Stop all running Docker containers
+- `dockerrm` - Remove all Docker containers
+- `dockerrmi` - Remove all Docker images
 
 ## Customization
 
@@ -136,7 +148,34 @@ The environment is designed to be easily customizable:
 1. Edit `config/init.lua` to customize your NeoVim setup
 2. Add your own functions to `config/shell_functions`
 3. Modify the `Dockerfile` to add or remove tools
-4. Changes are automatically applied across all your containers and machines
+4. Create your own `custom.env` file for environment variables
+
+## Troubleshooting
+
+### Container Won't Start
+
+If the container fails to start, check:
+- Docker is running
+- No port conflicts in your `custom.env`
+- You have sufficient permissions
+
+To clean up and start fresh:
+```bash
+dockerstop  # Stop all containers
+dockerrm    # Remove all containers
+dev build   # Rebuild your dev container
+```
+
+### NeoVim Plugins Not Working
+
+If NeoVim plugins aren't loading, run:
+
+```bash
+# Inside the container
+mkdir -p ~/.local/share/nvim/site/pack/packer/start
+git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+```
 
 ## License
 
