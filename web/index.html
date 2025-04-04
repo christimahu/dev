@@ -8,46 +8,49 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/mobile.css">
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/matrix.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/alpine.js/3.10.3/cdn.min.js" defer></script>
 </head>
-<body class="bg-pattern text-white font-sans antialiased" style="font-family: 'Inter', sans-serif;">
-  <div x-data="{ tab: 'overview', mobileMenu: false }" class="min-h-screen flex flex-col">
+<body class="matrix-body">
+  <!-- Matrix digital rain background and CRT effect overlay -->
+  <div class="matrix-bg"></div>
+  <div class="crt-effect"></div>
+
+  <div class="min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50 shadow-lg">
+    <header class="bg-header border-b border-matrix-dim sticky top-0 z-50 shadow-matrix">
       <div class="container mx-auto px-4 py-4 flex justify-between items-center">
         <div class="flex items-center">
-          <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white mr-3 shadow-lg">
+          <div class="w-10 h-10 bg-matrix-btn rounded-xl flex items-center justify-center text-matrix-dark mr-3 shadow-matrix">
             <i class="fas fa-cube text-xl"></i>
           </div>
           <h1 class="text-2xl font-bold text-gradient">Dev Environment</h1>
         </div>
         
         <!-- Desktop Menu -->
-        <nav class="hidden md:flex space-x-8">
-          <button @click="tab = 'overview'" :class="tab === 'overview' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-300 hover:text-white'" class="pb-1 transition">Overview</button>
-          <button @click="tab = 'install'" :class="tab === 'install' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-300 hover:text-white'" class="pb-1 transition">Installation</button>
-          <button @click="tab = 'usage'" :class="tab === 'usage' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-300 hover:text-white'" class="pb-1 transition">Usage</button>
-          <a href="https://github.com/christimahu/dev" class="text-gray-300 hover:text-white flex items-center transition">
+        <nav class="hidden md:flex space-x-8" id="desktop-nav">
+          <a href="#" data-tab="overview" class="nav-tab pb-1 transition nav-link cursor-pointer">Overview</a>
+          <a href="#" data-tab="install" class="nav-tab pb-1 transition nav-link cursor-pointer">Installation</a>
+          <a href="#" data-tab="usage" class="nav-tab pb-1 transition nav-link cursor-pointer">Usage</a>
+          <a href="https://github.com/christimahu/dev" target="_blank" class="text-matrix-dim hover:text-matrix-green flex items-center transition nav-link">
             <i class="fab fa-github mr-1"></i> GitHub
           </a>
         </nav>
         
         <!-- Mobile Menu Button -->
-        <button @click="mobileMenu = !mobileMenu" class="md:hidden text-gray-300 hover:text-white">
+        <button id="mobile-menu-btn" class="md:hidden text-matrix-dim hover:text-matrix-green">
           <i class="fas fa-bars text-xl"></i>
         </button>
       </div>
       
       <!-- Mobile Menu -->
-      <div x-show="mobileMenu" @click.away="mobileMenu = false" class="md:hidden bg-gray-800 px-4 py-2 border-b border-gray-700">
+      <div id="mobile-menu" class="md:hidden bg-card px-4 py-2 border-b border-matrix-dim hidden">
         <nav class="flex flex-col space-y-2">
-          <button @click="tab = 'overview'; mobileMenu = false" class="text-left py-2 text-gray-300 hover:text-white">Overview</button>
-          <button @click="tab = 'install'; mobileMenu = false" class="text-left py-2 text-gray-300 hover:text-white">Installation</button>
-          <button @click="tab = 'usage'; mobileMenu = false" class="text-left py-2 text-gray-300 hover:text-white">Usage</button>
-          <a href="https://github.com/christimahu/dev" class="text-left py-2 text-gray-300 hover:text-white flex items-center">
+          <a href="#" data-tab="overview" class="nav-tab-mobile text-left py-2 text-matrix-dim hover:text-matrix-green cursor-pointer">Overview</a>
+          <a href="#" data-tab="install" class="nav-tab-mobile text-left py-2 text-matrix-dim hover:text-matrix-green cursor-pointer">Installation</a>
+          <a href="#" data-tab="usage" class="nav-tab-mobile text-left py-2 text-matrix-dim hover:text-matrix-green cursor-pointer">Usage</a>
+          <a href="https://github.com/christimahu/dev" target="_blank" class="text-left py-2 text-matrix-dim hover:text-matrix-green flex items-center">
             <i class="fab fa-github mr-1"></i> GitHub
           </a>
         </nav>
@@ -59,22 +62,22 @@
       <!-- Hero Section -->
       <section class="py-16 md:py-24 px-6 text-center relative overflow-hidden">
         <div class="absolute inset-0 z-0 opacity-20">
-          <div class="absolute top-20 left-1/4 w-72 h-72 bg-blue-600 rounded-full filter blur-3xl"></div>
-          <div class="absolute bottom-20 right-1/4 w-96 h-96 bg-indigo-600 rounded-full filter blur-3xl"></div>
+          <div class="absolute top-20 left-1/4 w-72 h-72 bg-matrix-green rounded-full filter blur-3xl pulse-glow"></div>
+          <div class="absolute bottom-20 right-1/4 w-96 h-96 bg-matrix-green rounded-full filter blur-3xl pulse-glow"></div>
         </div>
 
         <div class="relative z-10 max-w-3xl mx-auto">
           <h2 class="text-4xl md:text-5xl font-bold mb-6 text-gradient">Containerized Development Environment</h2>
-          <p class="text-lg md:text-xl text-gray-300 mb-10 leading-relaxed">
+          <p class="text-lg md:text-xl text-matrix-dim mb-10 leading-relaxed">
             A seamless, cross-platform development environment that keeps your host system clean 
             while providing a complete suite of development tools that follow you across all your machines.
           </p>
           
           <div class="flex flex-wrap justify-center gap-4">
-            <a href="#install" @click="tab = 'install'" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-lg transition flex items-center">
+            <a href="#" data-tab="install" class="nav-tab px-6 py-3 btn-matrix font-medium rounded-lg shadow-matrix transition flex items-center">
               <i class="fas fa-download mr-2"></i> Get Started
             </a>
-            <a href="https://github.com/christimahu/dev" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-lg shadow-lg transition flex items-center">
+            <a href="https://github.com/christimahu/dev" target="_blank" class="px-6 py-3 bg-transparent border border-matrix-dim hover:border-matrix-green text-matrix-green font-medium rounded-lg shadow-matrix transition flex items-center">
               <i class="fab fa-github mr-2"></i> View on GitHub
             </a>
           </div>
@@ -82,11 +85,11 @@
       </section>
 
       <!-- Overview Section -->
-      <section x-show="tab === 'overview'" class="container mx-auto px-4 py-10">
+      <section id="overview" class="tab-content container mx-auto px-4 py-10">
         <div class="max-w-3xl mx-auto space-y-12">
           <div>
             <h3 class="text-2xl font-semibold mb-6 text-gradient">Why Use a Development Container?</h3>
-            <p class="text-gray-300 mb-6 leading-relaxed">
+            <p class="text-matrix-dim mb-6 leading-relaxed">
               Development environments can be complex to set up and maintain. Language versions, 
               dependencies, and tools can conflict between projects. The Dev Environment solves this
               by providing a consistent, reproducible workspace that runs identically everywhere.
@@ -94,86 +97,86 @@
           </div>
           
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-gray-800 p-6 rounded-xl shadow-xl hover:shadow-2xl transition">
-              <div class="w-12 h-12 bg-blue-600 bg-opacity-20 rounded-lg flex items-center justify-center mb-4">
-                <i class="fas fa-rocket text-blue-400 text-xl"></i>
+            <div class="bg-card p-6 rounded-xl shadow-matrix">
+              <div class="w-12 h-12 bg-matrix-btn-dim rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-rocket text-matrix-green text-xl"></i>
               </div>
-              <h3 class="text-xl font-semibold mb-2">Instant Setup</h3>
-              <p class="text-gray-300">Get a complete development environment within minutes, ready for coding.</p>
+              <h3 class="text-xl font-semibold mb-2 text-matrix-green">Instant Setup</h3>
+              <p class="text-matrix-dim">Get a complete development environment within minutes, ready for coding.</p>
             </div>
             
-            <div class="bg-gray-800 p-6 rounded-xl shadow-xl hover:shadow-2xl transition">
-              <div class="w-12 h-12 bg-blue-600 bg-opacity-20 rounded-lg flex items-center justify-center mb-4">
-                <i class="fas fa-tools text-blue-400 text-xl"></i>
+            <div class="bg-card p-6 rounded-xl shadow-matrix">
+              <div class="w-12 h-12 bg-matrix-btn-dim rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-tools text-matrix-green text-xl"></i>
               </div>
-              <h3 class="text-xl font-semibold mb-2">Multi-Language</h3>
-              <p class="text-gray-300">C++, Rust, Go, Python, Node.js, and more with all tools pre-configured.</p>
+              <h3 class="text-xl font-semibold mb-2 text-matrix-green">Multi-Language</h3>
+              <p class="text-matrix-dim">C++, Rust, Go, Python, Node.js, and more with all tools pre-configured.</p>
             </div>
             
-            <div class="bg-gray-800 p-6 rounded-xl shadow-xl hover:shadow-2xl transition">
-              <div class="w-12 h-12 bg-blue-600 bg-opacity-20 rounded-lg flex items-center justify-center mb-4">
-                <i class="fas fa-code-branch text-blue-400 text-xl"></i>
+            <div class="bg-card p-6 rounded-xl shadow-matrix">
+              <div class="w-12 h-12 bg-matrix-btn-dim rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-code-branch text-matrix-green text-xl"></i>
               </div>
-              <h3 class="text-xl font-semibold mb-2">Portable</h3>
-              <p class="text-gray-300">Works identically on macOS, Linux, and Windows with the same configuration.</p>
+              <h3 class="text-xl font-semibold mb-2 text-matrix-green">Portable</h3>
+              <p class="text-matrix-dim">Works identically on macOS, Linux, and Windows with the same configuration.</p>
             </div>
           </div>
           
           <div>
             <h3 class="text-2xl font-semibold mb-6 text-gradient">Included Tools</h3>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
-              <div class="p-4 bg-gray-800 rounded-lg flex items-center justify-center">
+              <a href="https://www.rust-lang.org/" target="_blank" class="p-4 bg-card rounded-lg flex items-center justify-center hover:bg-matrix-btn-dim transition">
                 <div>
                   <i class="fab fa-rust text-lg text-orange-400 mb-2"></i>
                   <p>Rust</p>
                 </div>
-              </div>
-              <div class="p-4 bg-gray-800 rounded-lg flex items-center justify-center">
+              </a>
+              <a href="https://isocpp.org/" target="_blank" class="p-4 bg-card rounded-lg flex items-center justify-center hover:bg-matrix-btn-dim transition">
                 <div>
                   <i class="fas fa-code text-lg text-blue-400 mb-2"></i>
                   <p>C/C++</p>
                 </div>
-              </div>
-              <div class="p-4 bg-gray-800 rounded-lg flex items-center justify-center">
+              </a>
+              <a href="https://www.python.org/" target="_blank" class="p-4 bg-card rounded-lg flex items-center justify-center hover:bg-matrix-btn-dim transition">
                 <div>
                   <i class="fab fa-python text-lg text-yellow-400 mb-2"></i>
                   <p>Python</p>
                 </div>
-              </div>
-              <div class="p-4 bg-gray-800 rounded-lg flex items-center justify-center">
+              </a>
+              <a href="https://golang.org/" target="_blank" class="p-4 bg-card rounded-lg flex items-center justify-center hover:bg-matrix-btn-dim transition">
                 <div>
                   <i class="fab fa-golang text-lg text-blue-400 mb-2"></i>
                   <p>Go</p>
                 </div>
-              </div>
-              <div class="p-4 bg-gray-800 rounded-lg flex items-center justify-center">
+              </a>
+              <a href="https://nodejs.org/" target="_blank" class="p-4 bg-card rounded-lg flex items-center justify-center hover:bg-matrix-btn-dim transition">
                 <div>
                   <i class="fab fa-node-js text-lg text-green-400 mb-2"></i>
                   <p>Node.js</p>
                 </div>
-              </div>
-              <div class="p-4 bg-gray-800 rounded-lg flex items-center justify-center">
+              </a>
+              <a href="https://cloud.google.com/sdk" target="_blank" class="p-4 bg-card rounded-lg flex items-center justify-center hover:bg-matrix-btn-dim transition">
                 <div>
                   <i class="fab fa-google text-lg text-blue-400 mb-2"></i>
                   <p>Cloud SDK</p>
                 </div>
-              </div>
+              </a>
             </div>
           </div>
         </div>
       </section>
 
       <!-- Installation Section -->
-      <section x-show="tab === 'install'" id="install" class="container mx-auto px-4 py-10">
+      <section id="install" class="tab-content container mx-auto px-4 py-10 hidden">
         <div class="max-w-3xl mx-auto">
           <h2 class="text-3xl font-bold mb-10 text-gradient">Installation</h2>
           
-          <div class="bg-gray-800 p-6 md:p-8 rounded-xl shadow-xl mb-12">
+          <div class="bg-card p-6 md:p-8 rounded-xl shadow-matrix mb-12">
             <h3 class="text-xl font-semibold mb-4 flex items-center">
               <i class="fas fa-check-circle text-green-500 mr-2"></i>
               Prerequisites
             </h3>
-            <ul class="list-disc list-inside text-gray-300 mb-6 space-y-2 pl-4">
+            <ul class="list-disc list-inside text-matrix-dim mb-6 space-y-2 pl-4">
               <li>Docker (Desktop for macOS/Windows, Engine for Linux)</li>
               <li>Python 3.6+ (already installed on macOS, most Linux distros)</li>
               <li>Git for version control</li>
@@ -182,55 +185,55 @@
           
           <div class="space-y-6">
             <div class="flex items-start">
-              <div class="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold mt-1 mr-4 shrink-0">1</div>
+              <div class="bg-matrix-btn rounded-full w-8 h-8 flex items-center justify-center text-matrix-dark font-bold mt-1 mr-4 shrink-0">1</div>
               <div>
-                <h3 class="text-xl font-semibold mb-2">Clone the Repository</h3>
-                <div class="bg-gray-900 p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto" style="font-family: 'JetBrains Mono', monospace;">
+                <h3 class="text-xl font-semibold mb-2 text-matrix-green">Clone the Repository</h3>
+                <div class="code-block p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto">
                   <code>git clone https://github.com/christimahu/dev.git ~/dev</code>
                 </div>
               </div>
             </div>
             
             <div class="flex items-start">
-              <div class="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold mt-1 mr-4 shrink-0">2</div>
+              <div class="bg-matrix-btn rounded-full w-8 h-8 flex items-center justify-center text-matrix-dark font-bold mt-1 mr-4 shrink-0">2</div>
               <div>
-                <h3 class="text-xl font-semibold mb-2">Run the Setup Script</h3>
-                <div class="bg-gray-900 p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto" style="font-family: 'JetBrains Mono', monospace;">
+                <h3 class="text-xl font-semibold mb-2 text-matrix-green">Run the Setup Script</h3>
+                <div class="code-block p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto">
                   <code>cd ~/dev/scripts<br>python3 setup.py</code>
                 </div>
-                <p class="text-gray-400 text-sm">This configures your host system with necessary symlinks and aliases.</p>
+                <p class="text-matrix-dim text-sm">This configures your host system with necessary symlinks and aliases.</p>
               </div>
             </div>
             
             <div class="flex items-start">
-              <div class="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold mt-1 mr-4 shrink-0">3</div>
+              <div class="bg-matrix-btn rounded-full w-8 h-8 flex items-center justify-center text-matrix-dark font-bold mt-1 mr-4 shrink-0">3</div>
               <div>
-                <h3 class="text-xl font-semibold mb-2">Source Your Shell Configuration</h3>
-                <div class="bg-gray-900 p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto" style="font-family: 'JetBrains Mono', monospace;">
+                <h3 class="text-xl font-semibold mb-2 text-matrix-green">Source Your Shell Configuration</h3>
+                <div class="code-block p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto">
                   <code># For Zsh (macOS default)<br>source ~/.zshrc<br><br># For Bash<br>source ~/.bashrc</code>
                 </div>
               </div>
             </div>
             
             <div class="flex items-start">
-              <div class="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold mt-1 mr-4 shrink-0">4</div>
+              <div class="bg-matrix-btn rounded-full w-8 h-8 flex items-center justify-center text-matrix-dark font-bold mt-1 mr-4 shrink-0">4</div>
               <div>
-                <h3 class="text-xl font-semibold mb-2">Build the Container</h3>
-                <div class="bg-gray-900 p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto" style="font-family: 'JetBrains Mono', monospace;">
+                <h3 class="text-xl font-semibold mb-2 text-matrix-green">Build the Container</h3>
+                <div class="code-block p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto">
                   <code>dev build</code>
                 </div>
-                <p class="text-gray-400 text-sm">This builds the Docker container with all development tools. It may take a few minutes on first run.</p>
+                <p class="text-matrix-dim text-sm">This builds the Docker container with all development tools. It may take a few minutes on first run.</p>
               </div>
             </div>
             
             <div class="flex items-start">
-              <div class="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold mt-1 mr-4 shrink-0">5</div>
+              <div class="bg-matrix-btn rounded-full w-8 h-8 flex items-center justify-center text-matrix-dark font-bold mt-1 mr-4 shrink-0">5</div>
               <div>
-                <h3 class="text-xl font-semibold mb-2">Start Using Your Environment</h3>
-                <div class="bg-gray-900 p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto" style="font-family: 'JetBrains Mono', monospace;">
+                <h3 class="text-xl font-semibold mb-2 text-matrix-green">Start Using Your Environment</h3>
+                <div class="code-block p-4 rounded-md mb-2 font-mono text-sm overflow-x-auto">
                   <code>cd ~/your-project<br>dev</code>
                 </div>
-                <p class="text-gray-400 text-sm">Run the <code class="bg-gray-800 rounded px-1">dev</code> command from any directory to enter the development environment.</p>
+                <p class="text-matrix-dim text-sm">Run the <code class="bg-matrix-dark px-1 rounded">dev</code> command from any directory to enter the development environment.</p>
               </div>
             </div>
           </div>
@@ -238,68 +241,68 @@
       </section>
 
       <!-- Usage Section -->
-      <section x-show="tab === 'usage'" class="container mx-auto px-4 py-10">
+      <section id="usage" class="tab-content container mx-auto px-4 py-10 hidden">
         <div class="max-w-3xl mx-auto">
           <h2 class="text-3xl font-bold mb-10 text-gradient">Usage</h2>
           
-          <div class="bg-gray-800 p-6 md:p-8 rounded-xl shadow-xl mb-12">
-            <h3 class="text-xl font-semibold mb-4">Common Commands</h3>
+          <div class="bg-card p-6 md:p-8 rounded-xl shadow-matrix mb-12">
+            <h3 class="text-xl font-semibold mb-4 text-matrix-green">Common Commands</h3>
             <div class="overflow-x-auto">
               <table class="w-full mb-4">
-                <tr class="border-b border-gray-700">
-                  <td class="py-3 px-4 font-mono bg-gray-700 rounded">dev</td>
+                <tr class="border-b border-matrix-dim">
+                  <td class="py-3 px-4 font-mono bg-matrix-dark rounded">dev</td>
                   <td class="py-3 px-4">Enter a shell in the development container</td>
                 </tr>
-                <tr class="border-b border-gray-700">
-                  <td class="py-3 px-4 font-mono bg-gray-700 rounded">dev build</td>
+                <tr class="border-b border-matrix-dim">
+                  <td class="py-3 px-4 font-mono bg-matrix-dark rounded">dev build</td>
                   <td class="py-3 px-4">Build or rebuild the development container</td>
                 </tr>
-                <tr class="border-b border-gray-700">
-                  <td class="py-3 px-4 font-mono bg-gray-700 rounded">dev status</td>
+                <tr class="border-b border-matrix-dim">
+                  <td class="py-3 px-4 font-mono bg-matrix-dark rounded">dev status</td>
                   <td class="py-3 px-4">Show status of the development container</td>
                 </tr>
-                <tr class="border-b border-gray-700">
-                  <td class="py-3 px-4 font-mono bg-gray-700 rounded">dev exec [cmd]</td>
+                <tr class="border-b border-matrix-dim">
+                  <td class="py-3 px-4 font-mono bg-matrix-dark rounded">dev exec [cmd]</td>
                   <td class="py-3 px-4">Execute a command in the container</td>
                 </tr>
                 <tr>
-                  <td class="py-3 px-4 font-mono bg-gray-700 rounded">dev stop</td>
+                  <td class="py-3 px-4 font-mono bg-matrix-dark rounded">dev stop</td>
                   <td class="py-3 px-4">Stop the development container</td>
                 </tr>
               </table>
             </div>
-            <p class="text-gray-300 mb-2">
-              <i class="fas fa-info-circle text-blue-400 mr-1"></i>
-              When you exit the shell with <code class="bg-gray-700 px-1 rounded">exit</code>, the container 
+            <p class="text-matrix-dim mb-2">
+              <i class="fas fa-info-circle text-matrix-green mr-1"></i>
+              When you exit the shell with <code class="bg-matrix-dark px-1 rounded">exit</code>, the container 
               will automatically stop and remove itself.
             </p>
           </div>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-gray-800 p-6 rounded-xl shadow-xl">
-              <h3 class="text-xl font-semibold mb-4 flex items-center">
+            <div class="bg-card p-6 rounded-xl shadow-matrix">
+              <h3 class="text-xl font-semibold mb-4 flex items-center text-matrix-green">
                 <i class="fas fa-terminal text-purple-400 mr-2"></i>
                 Helper Functions
               </h3>
-              <ul class="space-y-2 text-gray-300">
-                <li><code class="bg-gray-700 px-1 rounded">srv [port] [dir]</code> - HTTP file server</li>
-                <li><code class="bg-gray-700 px-1 rounded">tree [dir]</code> - Enhanced directory listing</li>
-                <li><code class="bg-gray-700 px-1 rounded">dockerrm</code> - Remove all Docker containers</li>
-                <li><code class="bg-gray-700 px-1 rounded">ghprune</code> - Clean Git branches</li>
-                <li><code class="bg-gray-700 px-1 rounded">tarfolder/untarfolder</code> - Archive utilities</li>
+              <ul class="space-y-2 text-matrix-dim">
+                <li><code class="bg-matrix-dark px-1 rounded">srv [port] [dir]</code> - HTTP file server</li>
+                <li><code class="bg-matrix-dark px-1 rounded">tree [dir]</code> - Enhanced directory listing</li>
+                <li><code class="bg-matrix-dark px-1 rounded">dockerrm</code> - Remove all Docker containers</li>
+                <li><code class="bg-matrix-dark px-1 rounded">ghprune</code> - Clean Git branches</li>
+                <li><code class="bg-matrix-dark px-1 rounded">tarfolder/untarfolder</code> - Archive utilities</li>
               </ul>
             </div>
             
-            <div class="bg-gray-800 p-6 rounded-xl shadow-xl">
-              <h3 class="text-xl font-semibold mb-4 flex items-center">
+            <div class="bg-card p-6 rounded-xl shadow-matrix">
+              <h3 class="text-xl font-semibold mb-4 flex items-center text-matrix-green">
                 <i class="fas fa-sliders-h text-yellow-400 mr-2"></i>
                 Customization
               </h3>
-              <ul class="space-y-2 text-gray-300">
-                <li>Edit <code class="bg-gray-700 px-1 rounded">config/init.lua</code> for NeoVim settings</li>
-                <li>Add your own functions to <code class="bg-gray-700 px-1 rounded">config/shell_functions</code></li>
-                <li>Create <code class="bg-gray-700 px-1 rounded">custom.env</code> for environment variables</li>
-                <li>Modify <code class="bg-gray-700 px-1 rounded">Dockerfile</code> to add new tools</li>
+              <ul class="space-y-2 text-matrix-dim">
+                <li>Edit <code class="bg-matrix-dark px-1 rounded">config/init.lua</code> for NeoVim settings</li>
+                <li>Add your own functions to <code class="bg-matrix-dark px-1 rounded">config/shell_functions</code></li>
+                <li>Create <code class="bg-matrix-dark px-1 rounded">custom.env</code> for environment variables</li>
+                <li>Modify <code class="bg-matrix-dark px-1 rounded">Dockerfile</code> to add new tools</li>
               </ul>
             </div>
           </div>
@@ -308,27 +311,27 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 border-t border-gray-800 py-8 mt-12">
+    <footer class="bg-header border-t border-matrix-dim py-8 mt-12">
       <div class="container mx-auto px-4">
         <div class="flex flex-col md:flex-row justify-between items-center">
           <div class="mb-4 md:mb-0">
             <div class="flex items-center">
-              <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-2">
+              <div class="w-8 h-8 bg-matrix-btn rounded-lg flex items-center justify-center text-matrix-dark mr-2">
                 <i class="fas fa-cube text-sm"></i>
               </div>
               <span class="text-lg font-semibold text-gradient">Dev Environment</span>
             </div>
-            <p class="text-gray-400 text-sm mt-2">A containerized development environment</p>
+            <p class="text-matrix-dim text-sm mt-2">A containerized development environment</p>
           </div>
           
           <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-8 text-center md:text-left">
-            <a href="https://github.com/christimahu/dev" class="text-gray-400 hover:text-white transition flex items-center justify-center md:justify-start">
+            <a href="https://github.com/christimahu/dev" target="_blank" class="text-matrix-dim hover:text-matrix-green transition flex items-center justify-center md:justify-start">
               <i class="fab fa-github mr-2"></i> GitHub
             </a>
-            <div class="text-gray-400 text-sm">
-              Created by <a href="https://github.com/christimahu" class="text-blue-400 hover:text-blue-300">Christi Mahu</a>
+            <div class="text-matrix-dim text-sm">
+              Created by <a href="https://christimahu.com/" target="_blank" class="text-matrix-green hover:text-matrix-bright">Christi Mahu</a>
             </div>
-            <div class="text-gray-500 text-sm">
+            <div class="text-matrix-dim text-sm">
               MPL 2.0 License
             </div>
           </div>
@@ -337,6 +340,207 @@
     </footer>
   </div>
 
-  <script src="js/main.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Tab navigation functionality - much simpler than Alpine.js
+    function showTab(tabId) {
+      // Hide all tab content
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+      });
+      
+      // Show the selected tab
+      const selectedTab = document.getElementById(tabId);
+      if (selectedTab) {
+        selectedTab.classList.remove('hidden');
+      }
+      
+      // Update active tab styles
+      document.querySelectorAll('.nav-tab').forEach(link => {
+        if (link.getAttribute('data-tab') === tabId) {
+          link.classList.add('text-matrix-green', 'border-b-2', 'border-matrix-green', 'shadow-text');
+          link.classList.remove('text-matrix-dim');
+        } else {
+          link.classList.remove('text-matrix-green', 'border-b-2', 'border-matrix-green', 'shadow-text');
+          link.classList.add('text-matrix-dim');
+        }
+      });
+      
+      // Update mobile nav too
+      document.querySelectorAll('.nav-tab-mobile').forEach(link => {
+        if (link.getAttribute('data-tab') === tabId) {
+          link.classList.add('text-matrix-green');
+          link.classList.remove('text-matrix-dim');
+        } else {
+          link.classList.remove('text-matrix-green');
+          link.classList.add('text-matrix-dim');
+        }
+      });
+      
+      // Set URL hash
+      window.location.hash = tabId;
+    }
+    
+    // Click handlers for desktop navigation
+    document.querySelectorAll('.nav-tab').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const tabId = this.getAttribute('data-tab');
+        showTab(tabId);
+      });
+    });
+    
+    // Click handlers for mobile navigation
+    document.querySelectorAll('.nav-tab-mobile').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const tabId = this.getAttribute('data-tab');
+        showTab(tabId);
+        
+        // Close mobile menu
+        document.getElementById('mobile-menu').classList.add('hidden');
+      });
+    });
+    
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+      const mobileMenu = document.getElementById('mobile-menu');
+      mobileMenu.classList.toggle('hidden');
+    });
+    
+    // Click outside to close mobile menu
+    document.addEventListener('click', function(e) {
+      const mobileMenu = document.getElementById('mobile-menu');
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      
+      if (!mobileMenu.contains(e.target) && e.target !== mobileMenuBtn && !mobileMenuBtn.contains(e.target)) {
+        mobileMenu.classList.add('hidden');
+      }
+    });
+    
+    // Initialize tab from URL hash or default to overview
+    let initialTab = 'overview';
+    const hash = window.location.hash.substring(1);
+    if (hash && ['overview', 'install', 'usage'].includes(hash)) {
+      initialTab = hash;
+    }
+    showTab(initialTab);
+    
+    // Listen for hash changes
+    window.addEventListener('hashchange', function() {
+      const hash = window.location.hash.substring(1);
+      if (hash && ['overview', 'install', 'usage'].includes(hash)) {
+        showTab(hash);
+      }
+    });
+    
+    // Matrix effects
+    initMatrixEffects();
+  });
+  
+  // Matrix effects (copied from the original main.js)
+  function initMatrixEffects() {
+    // Add occasional screen flicker effect
+    const body = document.body;
+    setInterval(() => {
+      if (Math.random() > 0.9) {
+        body.classList.add('flicker');
+        setTimeout(() => {
+          body.classList.remove('flicker');
+        }, 150);
+      }
+    }, 10000);
+    
+    // Create some random matrix characters that float down occasionally
+    const rustSnippets = [
+      'let mut', 'fn main', 'struct', 'impl', 'enum', 'match', 'Option<T>', 
+      'Result<T, E>', 'unwrap()', 'expect()', '#[derive]', 'Vec<T>', 'HashMap', 
+      'async fn', 'await', '.collect()', '::new()', '->'
+    ];
+    
+    function createMatrixChar() {
+      // Only create if we pass the random check to keep characters sparse
+      if (Math.random() > 0.9) {
+        const char = document.createElement('div');
+        // Use random Rust code snippets instead of 1s and 0s
+        char.textContent = rustSnippets[Math.floor(Math.random() * rustSnippets.length)];
+        char.style.position = 'fixed';
+        char.style.color = 'var(--matrix-green)';
+        char.style.fontSize = '14px'; // Larger, more visible font size
+        char.style.opacity = '0.5';
+        char.style.left = (Math.random() * 100) + 'vw';
+        char.style.top = '0vh';
+        char.style.zIndex = '-1';
+        char.style.textShadow = '0 0 3px rgba(0, 255, 65, 0.5)';
+        document.body.appendChild(char);
+        
+        // Animate downward like in The Matrix
+        let pos = 0;
+        const speed = 0.05 + (Math.random() * 0.1); // Random speeds
+        const animate = () => {
+          pos += speed;
+          char.style.top = pos + 'vh';
+          
+          if (pos < 120) {
+            requestAnimationFrame(animate);
+          } else {
+            char.remove();
+          }
+        };
+        
+        requestAnimationFrame(animate);
+      }
+    }
+    
+    // Create floating matrix characters occasionally
+    setInterval(() => {
+      // Create 0-3 characters at random positions
+      const count = Math.floor(Math.random() * 4);
+      for (let i = 0; i < count; i++) {
+        createMatrixChar();
+      }
+    }, 500);
+    
+    // Add a subtle pulsing effect to the matrix background
+    const matrixBg = document.querySelector('.matrix-bg');
+    if (matrixBg) {
+      // Add random subtle changes to opacity
+      setInterval(() => {
+        matrixBg.style.opacity = (0.2 + Math.random() * 0.05).toString();
+      }, 2000);
+    }
+    
+    // Add typewriter effect to code blocks
+    document.querySelectorAll('.code-block:not(.typed)').forEach(block => {
+      block.classList.add('typed');
+      
+      const codeContent = block.innerHTML;
+      block.innerHTML = '';
+      
+      // Create a typing container
+      const typingContainer = document.createElement('div');
+      typingContainer.classList.add('typing-container');
+      block.appendChild(typingContainer);
+      
+      // Type out the code
+      let i = 0;
+      const typeCode = () => {
+        if (i < codeContent.length) {
+          typingContainer.innerHTML += codeContent.charAt(i);
+          i++;
+          setTimeout(typeCode, Math.random() * 10 + 5); // Random typing speed for effect
+        }
+      };
+      
+      // Only animate if the element is visible
+      if (block.offsetParent !== null) {
+        setTimeout(typeCode, 200);
+      } else {
+        // If not visible, just show the code without animation
+        typingContainer.innerHTML = codeContent;
+      }
+    });
+  }
+  </script>
 </body>
 </html>
