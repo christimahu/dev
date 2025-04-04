@@ -1,5 +1,12 @@
 """
 Container management functions for the development environment.
+
+This module provides commands for managing container lifecycle:
+- stop: Stop running containers
+- delete: Remove containers
+- status: Display container information
+- exec: Execute commands inside containers
+- logs: View container logs
 """
 
 import os
@@ -11,8 +18,11 @@ def stop_command(args):
     """
     Stop the development container.
     
+    This gracefully stops the container while preserving its state,
+    allowing it to be restarted later with the same configuration.
+    
     Args:
-        args: Command-line arguments
+        args: Command-line arguments containing optional container name
     """
     container_name = args.name if args.name else get_container_name()
     
@@ -26,8 +36,11 @@ def delete_command(args):
     """
     Delete the development container.
     
+    This permanently removes the container and all non-mounted data.
+    The container must be stopped first if it's running.
+    
     Args:
-        args: Command-line arguments
+        args: Command-line arguments containing optional container name
     """
     container_name = args.name if args.name else get_container_name()
     
@@ -45,8 +58,14 @@ def status_command(args):
     """
     Show status of the development containers.
     
+    Displays detailed information about the container including:
+    - Image information
+    - Container status
+    - Port mappings
+    - Volume mounts
+    
     Args:
-        args: Command-line arguments
+        args: Command-line arguments containing optional container name
     """
     from .config import IMAGE_NAME, IMAGE_TAG
     
@@ -112,8 +131,15 @@ def exec_command(args):
     """
     Execute a command in the development container.
     
+    This allows running commands inside a running container without
+    starting a full interactive shell. If the container isn't running,
+    it will be started automatically.
+    
     Args:
-        args: Command-line arguments
+        args: Command-line arguments containing:
+            - command: The command to execute
+            - name (optional): Container name
+            - interactive (optional): Whether to run in interactive mode
     """
     container_name = args.name if args.name else get_container_name()
     
@@ -131,10 +157,16 @@ def exec_command(args):
         cmd.append("-it")
     cmd.append(container_name)
     
+    # Handle command arguments properly
     if isinstance(args.command, list):
+        # If command is already a list, extend cmd with it
         cmd.extend(args.command)
-    else:
+    elif isinstance(args.command, str):
+        # If it's a single string, pass it as a shell command
         cmd.extend(["bash", "-c", args.command])
+    else:
+        # For any other case, convert to string
+        cmd.extend(["bash", "-c", str(args.command)])
     
     subprocess.run(cmd)
 
@@ -142,8 +174,14 @@ def logs_command(args):
     """
     View logs from the development container.
     
+    Displays the output logs from the container, which can be useful
+    for troubleshooting or monitoring background processes.
+    
     Args:
-        args: Command-line arguments
+        args: Command-line arguments containing:
+            - name (optional): Container name
+            - follow (optional): Whether to follow log output
+            - lines (optional): Number of lines to show
     """
     container_name = args.name if args.name else get_container_name()
     

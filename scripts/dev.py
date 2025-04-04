@@ -104,8 +104,22 @@ def main():
         "prune": prune_command
     }
     
-    if args.command in commands:
-        commands[args.command](args)
+    # Fix for handling list-based command arguments
+    command_name = args.command
+    if hasattr(args, 'command') and isinstance(args.command, list):
+        # For exec command, the actual command name is 'exec'
+        # and args.command contains the command to execute
+        # Instead of trying to use args.command as a key, we determine the command name
+        # based on the subparser that was used
+        for action in parser._actions:
+            if isinstance(action, argparse._SubParsersAction):
+                for choice, subparser in action.choices.items():
+                    if subparser == exec_parser and command_name is not None:
+                        command_name = "exec"
+                        break
+    
+    if command_name in commands:
+        commands[command_name](args)
     else:
         parser.print_help()
     
