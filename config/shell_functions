@@ -291,6 +291,45 @@ ghprune() {
 }
 
 # ==========================================================================
+# C++ Helpers
+# ==========================================================================
+
+# cmkw: CMake Watch Build + Test
+# -----------------------------------------------
+# Watches source and header files for changes,
+# then builds the CMake project and runs ctest.
+# Continues watching after build/test errors.
+#
+# Watched files:
+#   - *.cpp, *.h, *.hpp
+#   - Top-level CMakeLists.txt
+#
+# Assumes source lives in src/ and headers in include/
+# -----------------------------------------------
+cmkw() {
+    if [ ! -f "CMakeLists.txt" ]; then
+        echo "Error: No CMakeLists.txt found in current directory."
+        return 1
+    fi
+
+    # Ensure build directory exists and is configured
+    mkdir -p build
+    cd build
+    cmake ..
+
+    # Watch source/header files and CMakeLists.txt for changes
+    find ../src ../include .. \
+        -type f \( \
+            -name '*.cpp' -o \
+            -name '*.h' -o \
+            -name '*.hpp' -o \
+            -name 'CMakeLists.txt' \
+        \) | entr -c sh -c 'cmake --build . && ctest --output-on-failure'
+
+    cd ..
+}
+
+# ==========================================================================
 # Google Cloud Platform Utilities
 # ==========================================================================
 # These functions simplify working with Google Cloud Platform.

@@ -12,44 +12,9 @@ Common commands:
 - dev rebuild       : Rebuild the container with updated plugins
 - dev status        : Show status of the development containers
 - dev exec [command]: Execute a command in the development container
-- dev stop          : Stop the development container (with interactive selection)
+- dev stop          : Stop the development container
 - dev delete        : Delete the development container
-- dev cleanup       : Remove all development containers
-- dev logs          : View logs from the development container
-- dev prune         : Clean up unused Docker resources
-- dev prune-images  : Remove development-related Docker images
-
-Tutorial:
----------
-This is the main command-line interface for the development environment. It provides
-a set of commands for working with Docker containers in a more user-friendly way.
-
-Getting Started:
-1. Build the container: `dev build`
-2. Start a shell: `dev`
-3. Run commands inside the container: `dev exec <command>`
-4. Check status: `dev status`
-5. Stop containers: `dev stop`
-6. Clean up: `dev cleanup`
-
-Example workflow:
-```bash
-# Build the container image (only needed once)
-dev build
-
-# Enter a shell in the container
-cd ~/my-project
-dev
-
-# Inside the container, do your work...
-# When done, exit the shell with 'exit'
-
-# If needed, stop the container
-dev stop
-
-# To remove all containers
-dev cleanup
-```
+- dev help          : Display helpful information about commands
 """
 
 import argparse
@@ -64,41 +29,17 @@ sys.path.insert(0, script_dir)
 # Import commands from modules
 from devcmd.shell import shell_command
 from devcmd.build import build_command, rebuild_command
-from devcmd.container import stop_command, delete_command, status_command, exec_command, logs_command, cleanup_command
-from devcmd.maintenance import prune_command, prune_images_command, update_srv_function
+from devcmd.container import stop_command, delete_command, status_command, exec_command, logs_command
+from devcmd.maintenance import prune_command, update_srv_function
+from devcmd.help import help_command, setup_help_parser
 
 def main():
     """
     Main entry point for the development environment manager.
     
     Parses command-line arguments and calls the appropriate command function.
-    
-    Tutorial:
-    ---------
-    This function:
-    1. Sets up the argument parser with all available commands
-    2. Parses the command-line arguments
-    3. Calls the appropriate function based on the command
-    
-    If no command is provided, it defaults to the 'shell' command,
-    which enters a shell in the development container.
     """
-    parser = argparse.ArgumentParser(
-        description="Development Environment Manager",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  dev                    # Enter a shell in the container
-  dev status             # Show container status
-  dev stop               # Stop container with interactive selection
-  dev exec ls -la        # Run command in container
-  dev cleanup            # Remove all dev containers
-  
-For more information, see README.md or visit:
-https://github.com/christimahu/dev
-"""
-    )
-    
+    parser = argparse.ArgumentParser(description="Development Environment Manager")
     subparsers = parser.add_subparsers(dest="command", help="Command to execute")
     
     # Shell command
@@ -108,7 +49,7 @@ https://github.com/christimahu/dev
     build_parser = subparsers.add_parser("build", help="Build the development container image")
     build_parser.add_argument("--no-cache", action="store_true", help="Build without using cache")
     build_parser.add_argument("--stage", choices=["full", "user", "final"], default="full", 
-                              help="Build stage (full, user, or final)")
+                            help="Build stage (full, user, or final)")
     
     # Rebuild command
     rebuild_parser = subparsers.add_parser("rebuild", help="Rebuild container with updated plugins")
@@ -116,24 +57,13 @@ https://github.com/christimahu/dev
     rebuild_parser.add_argument("--with-plugins", action="store_true", help="Update Neovim plugins during rebuild")
     rebuild_parser.add_argument("--name", help="Container name (default: based on current directory)")
     
-    # Stop command with improved interface
-    stop_parser = subparsers.add_parser(
-        "stop", 
-        help="Stop development containers with interactive selection",
-        description="Stops development containers. If multiple containers are running, shows a selection menu."
-    )
-    stop_parser.add_argument("--name", help="Specific container name to stop")
+    # Stop command
+    stop_parser = subparsers.add_parser("stop", help="Stop the development container")
+    stop_parser.add_argument("--name", help="Container name (default: based on current directory)")
     
     # Delete command
     delete_parser = subparsers.add_parser("delete", help="Delete the development container")
     delete_parser.add_argument("--name", help="Container name (default: based on current directory)")
-    
-    # Cleanup command (new)
-    cleanup_parser = subparsers.add_parser(
-        "cleanup", 
-        help="Remove all development containers",
-        description="Stops and removes all development containers (with 'dev-' prefix)."
-    )
     
     # Status command
     status_parser = subparsers.add_parser("status", help="Show status of development containers")
@@ -152,21 +82,12 @@ https://github.com/christimahu/dev
     logs_parser.add_argument("--lines", type=int, default=100, help="Number of lines to show")
     
     # Prune command
-    prune_parser = subparsers.add_parser(
-        "prune", 
-        help="Clean up unused Docker resources",
-        description="Removes unused containers and dangling images to free up disk space."
-    )
+    prune_parser = subparsers.add_parser("prune", help="Clean up unused Docker resources")
     prune_parser.add_argument("--all", action="store_true", help="Remove all unused resources")
     prune_parser.add_argument("--volumes", action="store_true", help="Also remove volumes")
     
-    # Prune-images command (new)
-    prune_images_parser = subparsers.add_parser(
-        "prune-images", 
-        help="Remove development-related Docker images",
-        description="Removes Docker images created by the development environment."
-    )
-    prune_images_parser.add_argument("-f", "--force", action="store_true", help="Skip confirmation and remove all images")
+    # Help command
+    help_parser = setup_help_parser(subparsers)
     
     args = parser.parse_args()
     
@@ -186,8 +107,7 @@ https://github.com/christimahu/dev
         "exec": exec_command,
         "logs": logs_command,
         "prune": prune_command,
-        "prune-images": prune_images_command,
-        "cleanup": cleanup_command
+        "help": help_command
     }
     
     # Fix for handling list-based command arguments
@@ -212,7 +132,6 @@ https://github.com/christimahu/dev
     # Update references from ~/dev to ~/.dev in shell_functions
     if args.command in ["build", "rebuild"]:
         update_srv_function()
-
 
 if __name__ == "__main__":
     main()
