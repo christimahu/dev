@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Alpine.js component for the app
 document.addEventListener('alpine:init', () => {
   Alpine.data('devApp', () => ({
-    tab: 'overview',
+    tab: 'dev',
     mobileMenu: false,
     
     // Initialize from URL hash if present
@@ -123,62 +123,193 @@ function initMatrixEffects() {
         body.classList.remove('flicker');
       }, 150);
     }
-  }, 10000);
+  }, 1000);
   
-  // Create some random matrix characters that float down occasionally
+  // Create some Rust code that float down occasionally
 const rustSnippets = [
-  'fn main() { println!("Hello, world!"); }',
-  'vec![1, 2, 3].iter().sum::<i32>()',
-  '"hello".chars().rev().collect::<String>()',
-  'Some(42).unwrap_or_default()',
-  'Option::<u8>::None.unwrap_or(0)',
-  'Err::<(), _>("error").expect_err("must fail")',
-  '#[derive(Debug, Clone, Copy)] struct Foo;',
-  'async fn fetch() -> Result<(), Box<dyn Error>> { Ok(()) }',
-  'std::collections::HashMap::<u32, u32>::new()',
-  '(0..10).collect::<Vec<u32>>()',
-  'futures::executor::block_on(async { 42 })',
-  'serde_json::from_str::<Vec<u8>>("[]").unwrap()',
-  'tokio::spawn(async { println!("async task"); })',
-  'impl Default for MyType { fn default() -> Self { Self {} } }',
-  'match Some(3) { Some(x) => x, None => 0 }',
-  'Result::<(), &str>::Ok(()).unwrap()',
-  'std::env::args().collect::<Vec<String>>()',
-  'std::mem::replace(&mut val, new_val)',
-  '"42".parse::<i32>().unwrap_or(0)',
-  'my_vec.into_iter().map(|x| x + 1).collect::<Vec<_>>()',
-  'Box::new([1, 2, 3])',
-  'Rc::new("shared string".to_string())',
-  'Mutex::new(Vec::<u8>::new())',
-  'format!("The number is: {}", 42)',
-  '"example".to_uppercase()',
-  '" Rust ".trim().to_lowercase()',
-  'Instant::now().elapsed().as_secs()',
-  'std::thread::sleep(Duration::from_millis(10))',
-  'u32::MAX.saturating_add(1)',
-  'File::create("output.txt").unwrap()',
-  'fs::read_to_string("input.txt").unwrap()',
-  'IpAddr::from_str("127.0.0.1").unwrap()',
-  '(0..).take(5).collect::<Vec<_>>()',
-  '"rust,is,awesome".split(",").collect::<Vec<_>>()',
-  '[0; 10].iter().enumerate().for_each(|(i, _)| println!("{}", i))',
-  'Regex::new(r"\\d+").unwrap().is_match("123")',
-  'chrono::Utc::now().to_rfc3339()',
-  'url::Url::parse("https://rust-lang.org").unwrap()',
-  'once_cell::sync::Lazy::new(|| 42)',
-  '(1..=10).filter(|x| x % 2 == 0).count()',
-  'str::repeat("rust", 3)',
-  '"rust".chars().count()'
-];
+    `fn sum_even(v: &[i32]) -> i32 {
+        v.iter()
+         .filter(|&&x| x % 2 == 0)
+         .sum()
+    }`,
+
+    `fn find_first(v: &[String]) -> Option<&str> {
+        v.iter()
+         .find(|s| s.starts_with("r"))
+         .map(|s| s.as_str())
+    }`,
+
+    `fn parse_and_double(s: &str) -> Result<i32, std::num::ParseIntError> {
+        s.trim().parse::<i32>().map(|n| n * 2)
+    }`,
+
+    `#[derive(Debug)]
+    struct Config {
+        retries: u8,
+        verbose: bool,
+    }`,
+
+    `fn get_or_default(map: &HashMap<String, String>, key: &str) -> &str {
+        map.get(key).map(|s| s.as_str()).unwrap_or("default")
+    }`,
+
+    `fn safe_div(a: f64, b: f64) -> Result<f64, &'static str> {
+        if b == 0.0 {
+            Err("division by zero")
+        } else {
+            Ok(a / b)
+        }
+    }`,
+
+    `fn flatten(v: Vec<Vec<i32>>) -> Vec<i32> {
+        v.into_iter().flatten().collect()
+    }`,
+
+    `fn log_lines(lines: &[&str]) {
+        for (i, line) in lines.iter().enumerate() {
+            println!("[{}] {}", i, line);
+        }
+    }`,
+
+    `let data = std::fs::read_to_string("config.toml")
+        .unwrap_or_else(|_| String::from("[default]"));`,
+
+    `let now = std::time::Instant::now();
+    do_work();
+    println!("elapsed: {:?}", now.elapsed());`,
+
+    `#[derive(Clone)]
+    struct Point {
+        x: f32,
+        y: f32,
+    }`,
+
+    `fn open_file(path: &str) -> Result<String, std::io::Error> {
+        std::fs::read_to_string(path)
+    }`,
+
+    `let nums: Vec<_> = (1..100)
+        .filter(|x| x % 7 == 0)
+        .take(5)
+        .collect();`,
+
+    `trait Describe {
+        fn describe(&self) -> String;
+    }
+
+    impl Describe for Point {
+        fn describe(&self) -> String {
+            format!("({}, {})", self.x, self.y)
+        }
+    }`,
+
+    `async fn fetch_url(url: &str) -> Result<String, reqwest::Error> {
+        reqwest::get(url).await?.text().await
+    }`,
+
+    `struct Holder<'a> {
+        name: &'a str,
+    }
+
+    impl<'a> Holder<'a> {
+        fn greet(&self) {
+            println!("Hello, {}", self.name);
+        }
+    }`,
+
+    `fn retry<F, T, E>(mut f: F, max: u8) -> Result<T, E>
+    where
+        F: FnMut() -> Result<T, E>,
+    {
+        for _ in 0..max {
+            if let Ok(val) = f() {
+                return Ok(val);
+            }
+        }
+        f()
+    }`,
+
+    `let result = match env::var("MODE") {
+        Ok(val) if val == "debug" => "debugging",
+        Ok(_) => "running",
+        Err(_) => "unknown",
+    };`,
+
+    `let pool = Arc::new(Mutex::new(vec![]));
+    {
+        let mut conn = pool.lock().unwrap();
+        conn.push(42);
+    }`,
+
+    `#[repr(C)]
+    pub struct FFIData {
+        pub id: u32,
+        pub value: f64,
+    }`,
+
+    `fn map_result(v: Vec<&str>) -> Vec<Result<i32, _>> {
+        v.into_iter().map(|s| s.parse()).collect()
+    }`,
+
+    `fn zip_and_sum(a: &[i32], b: &[i32]) -> i32 {
+        a.iter().zip(b.iter()).map(|(x, y)| x + y).sum()
+    }`,
+
+    `impl Config {
+        fn is_enabled(&self) -> bool {
+            self.verbose && self.retries > 0
+        }
+    }`,
+
+    `fn dedup_and_sort(mut v: Vec<i32>) -> Vec<i32> {
+        v.sort_unstable();
+        v.dedup();
+        v
+    }`,
+
+    `async fn async_read(path: &str) -> std::io::Result<String> {
+        use tokio::fs::File;
+        use tokio::io::AsyncReadExt;
+        let mut file = File::open(path).await?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).await?;
+        Ok(contents)
+    }`,
+
+    `fn partition(v: Vec<i32>) -> (Vec<i32>, Vec<i32>) {
+        v.into_iter().partition(|x| x % 2 == 0)
+    }`,
+
+    `fn unwrap_or_log(opt: Option<i32>) -> i32 {
+        opt.unwrap_or_else(|| {
+            eprintln!("Missing value, using default");
+            0
+        })
+    }`,
+
+    `fn to_map(pairs: Vec<(&str, i32)>) -> HashMap<String, i32> {
+        pairs.into_iter().map(|(k, v)| (k.to_string(), v)).collect()
+    }`,
+
+    `#[async_trait]
+    trait Syncable {
+        async fn sync(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>>;
+    }`,
+
+    `fn split_words(s: &str) -> Vec<&str> {
+        s.split_whitespace().collect()
+    }`
+    ];
 
   function createMatrixChar() {
       const char = document.createElement('div');
-      char.textContent = rustSnippets[Math.floor(Math.random() * rustSnippets.length)];
+      char.innerText = rustSnippets[Math.floor(Math.random() * rustSnippets.length)];
+      char.style.whiteSpace = 'pre';
       char.style.position = 'fixed';
       char.style.color = 'var(--matrix-green)';
-      char.style.fontSize = '10px'; 
-      char.style.opacity = '0.1';
-      char.style.left = (Math.random() * 100) + 'vw';
+      char.style.fontSize = (8 + Math.random() * 8).toFixed(1) + 'px';
+      char.style.opacity = '0.15';
+      char.style.left = (Math.random() * 70) + 'vw';
       char.style.top = '0vh';
       char.style.zIndex = '-1';
       char.style.textShadow = '0 0 3px rgba(0, 255, 65, 0.5)';
@@ -186,7 +317,7 @@ const rustSnippets = [
       
       // Animate downward like in The Matrix
       let pos = 0;
-      const speed = 0.01 + (Math.random() * 0.1); // Random speeds
+      const speed = 0.005 + (Math.random() * 0.1); // Random speeds
       const animate = () => {
         pos += speed;
         char.style.top = pos + 'vh';
@@ -201,10 +332,10 @@ const rustSnippets = [
       requestAnimationFrame(animate);
   }
   
-  // Create floating matrix characters occasionally
+  // Create floating code occasionally
   setInterval(() => {
     // Create 0-3 characters at random positions
-    const count = Math.floor(Math.random() * 4);
+    const count = Math.floor(Math.random() * 2);
     for (let i = 0; i < count; i++) {
       createMatrixChar();
     }
