@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update --fix-missing && \
     apt-get install -y \
     curl wget git vim neovim tmux tree \
-    build-essential gcc g++ make cmake ninja-build \
+    build-essential gcc g++ make cmake ninja-build entr \
     clang clang-format clang-tidy clangd \
     llvm lldb lld libc++-dev libc++abi-dev \
     python3 python3-pip python3-venv \

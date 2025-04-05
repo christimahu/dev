@@ -14,6 +14,7 @@ Common commands:
 - dev exec [command]: Execute a command in the development container
 - dev stop          : Stop the development container
 - dev delete        : Delete the development container
+- dev help          : Display helpful information about commands
 """
 
 import argparse
@@ -30,6 +31,7 @@ from devcmd.shell import shell_command
 from devcmd.build import build_command, rebuild_command
 from devcmd.container import stop_command, delete_command, status_command, exec_command, logs_command
 from devcmd.maintenance import prune_command, update_srv_function
+from devcmd.help import help_command, setup_help_parser
 
 def main():
     """
@@ -84,6 +86,9 @@ def main():
     prune_parser.add_argument("--all", action="store_true", help="Remove all unused resources")
     prune_parser.add_argument("--volumes", action="store_true", help="Also remove volumes")
     
+    # Help command
+    help_parser = setup_help_parser(subparsers)
+    
     args = parser.parse_args()
     
     # If no command is provided, default to shell
@@ -101,7 +106,8 @@ def main():
         "status": status_command,
         "exec": exec_command,
         "logs": logs_command,
-        "prune": prune_command
+        "prune": prune_command,
+        "help": help_command
     }
     
     # Fix for handling list-based command arguments
