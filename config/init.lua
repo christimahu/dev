@@ -132,7 +132,22 @@ require('packer').startup(function(use)
       'folke/trouble.nvim',
       requires = 'nvim-tree/nvim-web-devicons'
     }
-    
+
+    use {
+      "mfussenegger/nvim-lint",
+      config = function()
+        require("lint").linters_by_ft = {
+          lua = { "selene" },
+        }
+
+        vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+          callback = function()
+            require("lint").try_lint()
+          end,
+        })
+      end
+    }
+
     -- Testing
     use 'vim-test/vim-test'
     use {
@@ -163,7 +178,6 @@ require("mason-lspconfig").setup({
         "gopls",      -- Go
         "clangd",     -- C/C++
         "pyright",    -- Python
-        "tsserver",   -- TypeScript/JavaScript (Mason still uses the old name)
     },
     automatic_installation = true,
 })
@@ -247,14 +261,7 @@ require("mason-lspconfig").setup_handlers({
                 cmd = {"clangd", "--background-index"}
             },
         })
-    end,
-    
-    -- For tsserver, make sure we use the new name
-    ["tsserver"] = function()
-        lspconfig.ts_ls.setup({
-            capabilities = capabilities,
-        })
-    end,
+    end,    
 })
 
 -- LSP keybindings with fix for formatting function

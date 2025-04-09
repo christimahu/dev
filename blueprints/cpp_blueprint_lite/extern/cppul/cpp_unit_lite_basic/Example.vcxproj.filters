@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="CppUnitLite">
+      <UniqueIdentifier>{582f0c04-6ab5-4578-9514-65dfe6d2f4e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CppUnitLite\CppUnitLite source files">
+      <UniqueIdentifier>{ddac0c46-4fa5-4678-957a-7876bec7dc9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CppUnitLite\CppUnitLite header files">
+      <UniqueIdentifier>{87be49c4-2e6e-41db-ac99-0fff778059f4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\CppUnitLite\Failure.h">
+      <Filter>CppUnitLite\CppUnitLite header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CppUnitLite\Test.h">
+      <Filter>CppUnitLite\CppUnitLite header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CppUnitLite\TestHarness.h">
+      <Filter>CppUnitLite\CppUnitLite header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CppUnitLite\TestRegistry.h">
+      <Filter>CppUnitLite\CppUnitLite header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CppUnitLite\TestResult.h">
+      <Filter>CppUnitLite\CppUnitLite header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CppUnitLite\WFailure.h">
+      <Filter>CppUnitLite\CppUnitLite header files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CppUnitLite\WFailure.cpp">
+      <Filter>CppUnitLite\CppUnitLite source files</Filter>
+    </ClCompile>
+    <ClCompile Include="CppUnitLite\Failure.cpp">
+      <Filter>CppUnitLite\CppUnitLite source files</Filter>
+    </ClCompile>
+    <ClCompile Include="CppUnitLite\Test.cpp">
+      <Filter>CppUnitLite\CppUnitLite source files</Filter>
+    </ClCompile>
+    <ClCompile Include="CppUnitLite\TestRegistry.cpp">
+      <Filter>CppUnitLite\CppUnitLite source files</Filter>
+    </ClCompile>
+    <ClCompile Include="CppUnitLite\TestResult.cpp">
+      <Filter>CppUnitLite\CppUnitLite source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="XxxTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -324,7 +324,7 @@ cmkw() {
             -name '*.h' -o \
             -name '*.hpp' -o \
             -name 'CMakeLists.txt' \
-        \) | entr -c sh -c 'cmake --build . && ctest --output-on-failure'
+        \) | entr -c sh -c 'echo -e "\n\n========== 🟢 BUILD STARTED: $(date) ==========\n"; cmake --build . && ctest --output-on-failure'
 
     cd ..
 }

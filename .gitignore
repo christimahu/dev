@@ -132,6 +132,7 @@ go.work
 *.mod
 *.smod
 *.ilk
+CMakeUserPresets.json
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
@@ -142,6 +143,9 @@ _deps
 *.gcda
 *.gcno
 *.gcov
+build.ninja
+.ninja_deps
+.ninja_log
 
 # Docker
 .docker/

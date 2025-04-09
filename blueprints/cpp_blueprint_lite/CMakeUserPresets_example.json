@@ -1,0 +1,44 @@
+{
+  "version": 3,
+  "include": ["CMakePresets.json"],
+  "configurePresets": [
+    {
+      "name": "app-debug",
+      "inherits": "debug",
+      "displayName": "App (Debug)",
+      "cacheVariables": {
+        "PROJECT_NAME": "app",
+        "PROJECT_DISPLAY_NAME": "App",
+        "PROJECT_PREFIX": "app",
+        "PROJECT_DESCRIPTION": "App"
+      }
+    },
+    {
+      "name": "app-release",
+      "inherits": "release",
+      "displayName": "App (Release)",
+      "cacheVariables": {
+        "PROJECT_NAME": "app",
+        "PROJECT_DISPLAY_NAME": "App",
+        "PROJECT_PREFIX": "app",
+        "PROJECT_DESCRIPTION": "App"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "app-debug",
+      "configurePreset": "app-debug"
+    },
+    {
+      "name": "app-release",
+      "configurePreset": "app-release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "app",
+      "configurePreset": "app-debug"
+    }
+  ]
+}
