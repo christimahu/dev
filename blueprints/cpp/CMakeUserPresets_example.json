@@ -3,42 +3,42 @@
   "include": ["CMakePresets.json"],
   "configurePresets": [
     {
-      "name": "app-debug",
+      "name": "chatbot-debug",
       "inherits": "debug",
-      "displayName": "App (Debug)",
+      "displayName": "Chatbot (Debug)",
       "cacheVariables": {
-        "PROJECT_NAME": "app",
-        "PROJECT_DISPLAY_NAME": "App",
-        "PROJECT_PREFIX": "app",
-        "PROJECT_DESCRIPTION": "App"
+        "PROJECT_NAME": "chatbot",
+        "PROJECT_DISPLAY_NAME": "Chatbot",
+        "PROJECT_PREFIX": "chatbot",
+        "PROJECT_DESCRIPTION": "Chatbot"
       }
     },
     {
-      "name": "app-release",
+      "name": "chatbot-release",
       "inherits": "release",
-      "displayName": "App (Release)",
+      "displayName": "chatbot (Release)",
       "cacheVariables": {
-        "PROJECT_NAME": "app",
-        "PROJECT_DISPLAY_NAME": "App",
-        "PROJECT_PREFIX": "app",
-        "PROJECT_DESCRIPTION": "App"
+        "PROJECT_NAME": "chatbot",
+        "PROJECT_DISPLAY_NAME": "Chatbot",
+        "PROJECT_PREFIX": "chatbot",
+        "PROJECT_DESCRIPTION": "Chatbot"
       }
     }
   ],
   "buildPresets": [
     {
-      "name": "app-debug",
-      "configurePreset": "app-debug"
+      "name": "chatbot-debug",
+      "configurePreset": "chatbot-debug"
     },
     {
-      "name": "app-release",
-      "configurePreset": "app-release"
+      "name": "chatbot-release",
+      "configurePreset": "chatbot-release"
     }
   ],
   "testPresets": [
     {
-      "name": "app",
-      "configurePreset": "app-debug"
+      "name": "chatbot",
+      "configurePreset": "chatbot-debug"
     }
   ]
 }
