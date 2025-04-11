@@ -28,17 +28,17 @@ from pathlib import Path
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, script_dir)
 
-# Import commands from modules (will be created next)
-# from dkrcmd.build import build_command
-# from dkrcmd.run import run_command
-# from dkrcmd.buildrun import buildrun_command
-# from dkrcmd.shell import shell_command
-# from dkrcmd.status import status_command
-# from dkrcmd.stop import stop_command
-# from dkrcmd.rm import rm_command
-# from dkrcmd.rmi import rmi_command
-# from dkrcmd.logs import logs_command
-# from dkrcmd.help import help_command, setup_help_parser
+# Import commands from modules
+from dkrcmd.build import build_command
+from dkrcmd.run import run_command
+from dkrcmd.shell import shell_command
+from dkrcmd.status import status_command
+from dkrcmd.stop import stop_command
+from dkrcmd.rm import rm_command
+from dkrcmd.rmi import rmi_command
+from dkrcmd.logs import logs_command
+from dkrcmd.help import help_command, setup_help_parser
+from dkrcmd.config import get_default_tag
 
 def main():
     """
@@ -70,6 +70,7 @@ def main():
     # Shell command
     shell_parser = subparsers.add_parser("shell", help="Start an interactive shell in a container")
     shell_parser.add_argument("--image", help="Image to use (default: directory name)")
+    shell_parser.add_argument("--force", "-f", action="store_true", help="Skip security prompt")
     
     # Status command
     subparsers.add_parser("status", help="List all running containers")
@@ -95,8 +96,7 @@ def main():
     logs_parser.add_argument("--lines", type=int, default=100, help="Number of lines to show")
     
     # Help command
-    help_parser = subparsers.add_parser("help", help="Display help information")
-    help_parser.add_argument("command_name", nargs="?", help="Command to get help for")
+    help_parser = setup_help_parser(subparsers)
     
     args = parser.parse_args()
     
@@ -105,24 +105,86 @@ def main():
         parser.print_help()
         return
     
+    # Handle buildrun command directly here instead of a separate module
+    if args.command == "buildrun":
+        return buildrun_command(args)
+    
+    # Handle shell command with safety prompt
+    if args.command == "shell" and not args.force:
+        print("\n⚠️  SECURITY WARNING:")
+        print("Using shell in containers is primarily for debugging and not recommended for production.")
+        print("Production containers often (intentionally) don't include shell access for security reasons.")
+        
+        response = input("Are you intentionally using this for debugging? [y/N]: ").strip().lower()
+        if response != 'y' and response != 'yes':
+            print("Operation cancelled. If you're sure you want to proceed, use --force flag.")
+            return False
+    
     # Execute the appropriate command
     commands = {
-        "build": lambda _: print("Build command - will call build_command(args)"),
-        "run": lambda _: print("Run command - will call run_command(args)"),
-        "buildrun": lambda _: print("BuildRun command - will call buildrun_command(args)"),
-        "shell": lambda _: print("Shell command - will call shell_command(args)"),
-        "status": lambda _: print("Status command - will call status_command(args)"),
-        "stop": lambda _: print("Stop command - will call stop_command(args)"),
-        "rm": lambda _: print("Remove command - will call rm_command(args)"),
-        "rmi": lambda _: print("Remove Image command - will call rmi_command(args)"),
-        "logs": lambda _: print("Logs command - will call logs_command(args)"),
-        "help": lambda _: print("Help command - will call help_command(args)")
+        "build": build_command,
+        "run": run_command,
+        "shell": shell_command,
+        "status": status_command,
+        "stop": stop_command,
+        "rm": rm_command,
+        "rmi": rmi_command,
+        "logs": logs_command,
+        "help": help_command
     }
     
     if args.command in commands:
-        commands[args.command](args)
+        return commands[args.command](args)
     else:
         parser.print_help()
+
+def buildrun_command(args):
+    """
+    Build a Docker image and immediately run a container from it.
+    
+    This command:
+    1. Calls the build command to create an image
+    2. If successful, calls the run command to start a container
+    
+    Args:
+        args: Command-line arguments containing:
+            - tag: Optional image name and tag
+            - port: Optional port mappings
+            - env: Optional environment variables
+    """
+    # Create build args by copying the original args
+    build_args = argparse.Namespace(
+        tag=args.tag,
+        file=None  # Use default Dockerfile
+    )
+    
+    print("=== Step 1: Building Docker Image ===")
+    
+    # Attempt to build the image
+    build_success = build_command(build_args)
+    
+    if not build_success:
+        print("\n❌ Build failed. Skipping container creation.")
+        return False
+    
+    print("\n=== Step 2: Running Container ===")
+    
+    # Create run args
+    run_args = argparse.Namespace(
+        image=args.tag if args.tag else get_default_tag(),
+        name=None,  # Generate a random name
+        port=args.port,
+        env=args.env
+    )
+    
+    # Run the container
+    run_success = run_command(run_args)
+    
+    if not run_success:
+        print("\n❌ Container run failed.")
+        return False
+    
+    return True
 
 if __name__ == "__main__":
     main()
